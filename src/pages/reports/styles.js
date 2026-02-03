@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+    marginTop: 12,
   },
   addReportContainer: {
     flex: 1,
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
   },
   searchWithAddContainer: {
     paddingHorizontal: 16,
-    marginTop: 16,
+    marginTop: 12,
   },
   filtersRow: {
     flexDirection: 'row',

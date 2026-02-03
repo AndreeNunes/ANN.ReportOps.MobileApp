@@ -5,6 +5,8 @@ const tabBarStyle = {
   elevation: 0,
   shadowOpacity: 0,
   shadowOffset: { width: 0, height: 0 },
+  paddingTop: 12,
+  height: 100,
 }
 
 const tabBarLabelStyle = {

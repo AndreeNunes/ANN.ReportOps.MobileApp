@@ -100,6 +100,15 @@ export function reportTemplate(dto) {
               font-size: 12px;
             }
 
+            .equip-cell-2 {
+              width: 33.33%;
+              text-align: left;
+              vertical-align: middle;
+              border: 1px solid #000;
+              padding: 6px 4px;
+              font-size: 12px;
+            }
+
             .section-title {
               background-color:rgb(12, 33, 104);
               color: #fff;
@@ -377,23 +386,16 @@ export function reportTemplate(dto) {
 
               <table class="equip-table">
                 <tr class="equip-row">
-                  <td class="equip-cell">Tensão de alimentação: ${dto?.equipament?.supply_voltage ?? 'N/A'}</td>
-                  <td class="equip-cell">Tensão de comando: ${dto?.equipament?.control_voltage ?? 'N/A'}</td>
+                  <td class="equip-cell">Modelo do filtro de coalescente: ${dto?.equipament?.coalescing_filter_model ?? 'N/A'}</td>
+                  <td class="equip-cell">Dados de lubrificação do motor: ${dto?.equipament?.motor_lubrication_data ?? 'N/A'}</td>
                 </tr>
               </table>
 
               <table class="equip-table">
                 <tr class="equip-row">
-                  <td class="equip-cell">Tensão da solenóide de admissão: ${dto?.equipament?.intake_solenoid_voltage ?? 'N/A'}</td>
-                  <td class="equip-cell">Modelo do filtro de coalescente: ${dto?.equipament?.coalescing_filter_model ?? 'N/A'}</td>
-                </tr>
-              </table>
-
-              <table class="equip-table">
-                <td class="equip-cell">Dados de lubrificação do motor: ${dto?.equipament?.motor_lubrication_data ?? 'N/A'}</td>
-                  <td class="equip-cell"></td>
-                <tr class="required-row">
-                </tr>
+                  <td class="equip-cell-2">Tensão de alimentação: ${dto?.equipament?.supply_voltage ?? 'N/A'}</td>
+                  <td class="equip-cell-2">Tensão de comando: ${dto?.equipament?.control_voltage ?? 'N/A'}</td>
+                  <td class="equip-cell-2">Tensão da solenóide de admissão: ${dto?.equipament?.intake_solenoid_voltage ?? 'N/A'}</td>
                 </tr>
               </table>
 

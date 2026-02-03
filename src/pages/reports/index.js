@@ -111,15 +111,6 @@ const Reports = ({ navigation }) => {
           );
         })}
       </View>
-      {/* <Button
-        title="Adicionar Relatório"
-        onPress={() => sheetRef.current?.expand()}
-      />
-
-      <Button
-        title="CLEAR"
-        onPress={() => AsyncStorage.clear()}
-      /> */}
     </View>
   ), [search, filterMode]);
 
@@ -203,13 +194,13 @@ const Reports = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {!isLoading && !error && (
         <FlatList
           keyExtractor={(item) => item.id}
           data={data}
           ListHeaderComponent={(
-            <View style={{ marginBottom: 24, marginTop: 16 }}>
+            <View style={{ marginBottom: 12 }}>
               <View style={{ paddingHorizontal: 16 }}>
                 <InfoBanner
                   storageKey="@banner_reports_hint"
@@ -293,7 +284,7 @@ const Reports = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </BottomSheetComponent>
-    </SafeAreaView>
+    </View>
   );
 };
 

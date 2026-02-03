@@ -228,7 +228,7 @@ export default function DataRequiredReadings({ route, navigation }) {
             placeholder="Digite o S"
             value={supplyUnloadedS}
             onChangeText={(v) => setRrSupplyVoltageUnloaded([supplyUnloadedR, v, supplyUnloadedT].join('&'))}
-            suffixText="A"
+            suffixText="V"
             mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
             keyboardType="number-pad"
           />
@@ -239,7 +239,7 @@ export default function DataRequiredReadings({ route, navigation }) {
             placeholder="Digite o T"
             value={supplyUnloadedT}
             onChangeText={(v) => setRrSupplyVoltageUnloaded([supplyUnloadedR, supplyUnloadedS, v].join('&'))}
-            suffixText="A"
+            suffixText="V"
             mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
             keyboardType="number-pad"
           />
