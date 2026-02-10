@@ -359,7 +359,7 @@ export function reportTemplate(dto) {
               <table class="equip-table">
                 <tr class="equip-row">
                   <td class="equip-cell">Equipamento: ${dto?.equipament?.name ?? 'N/A'}</td>
-                  <td class="equip-cell">Horímetro atual: ${dto?.eq_current_hour_meter ?? 'N/A'}</td>
+                  <td class="equip-cell">Horímetro atual: ${dto?.equipament?.current_hour_meter ?? 'N/A'}</td>
                 </tr>
               </table>
 

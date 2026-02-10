@@ -23,7 +23,6 @@ export default function DataEquipament({ route, navigation }) {
   const [search, setSearch] = useState('');
   const [equipamentsFiltered, setEquipamentsFiltered] = useState([]);
   const [equipamentSelected, setEquipamentsSelected] = useState(null);
-  const [equipamentCurrentHourMeter, setEquipamentsCurrentHourMeter] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [actionItem, setActionItem] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -58,8 +57,6 @@ export default function DataEquipament({ route, navigation }) {
       if (findEquipaments) {
         setEquipamentsSelected(findEquipaments);
       }
-
-      setEquipamentsCurrentHourMeter(orderService.eq_current_hour_meter);
     }
   }
 
@@ -76,24 +73,6 @@ export default function DataEquipament({ route, navigation }) {
         <View style={{ height: 12 }} />
 
         <View style={{ paddingHorizontal: 16 }}>
-          <MaskedInput
-            label="Horímetro atual"
-            placeholder="Digite o horímetro atual"
-            useNumberMask={true}
-            numberOptions={{
-              prefix: [],
-              delimiter: '.',
-              separator: ',',
-              precision: 0,
-            }}
-            value={equipamentCurrentHourMeter}
-            onChangeText={setEquipamentsCurrentHourMeter}
-          />
-        </View>
-
-        <View style={styles.separator} />
-
-        <View style={{ paddingHorizontal: 16 }}>
           <SearchWithAdd
             value={search}
             onChangeText={(text) => searchEquipaments(text)}
@@ -106,7 +85,7 @@ export default function DataEquipament({ route, navigation }) {
         </View>
       </View>
     )
-  }, [equipamentCurrentHourMeter, search, equipamentsFiltered.length]);
+  }, [search, equipamentsFiltered.length]);
 
   const renderItem = ({ item }) => {
     return (
@@ -186,7 +165,6 @@ export default function DataEquipament({ route, navigation }) {
 
       await updateOrderService(id, {
         equipament: item,
-        eq_current_hour_meter: equipamentCurrentHourMeter,
       });
 
       await updateReport(id, {
