@@ -228,9 +228,12 @@ export default function AddReportOrderService({ navigation, route }) {
   }
 
   const handleSync = async () => {
-    console.log("[x] - Sincronizando...");
+    console.log("[x] - 2 Sincronizando...");
+
     const startAt = Date.now();
+
     setSyncStatus('loading');
+
     loadingSheetRef.current?.expand();
 
     const isConnected = await isConnectedNetwork();
@@ -251,12 +254,17 @@ export default function AddReportOrderService({ navigation, route }) {
 
     const finish = (status) => {
       const elapsed = Date.now() - startAt;
-      const wait = elapsed < 900 ? 900 - elapsed : 0; // mínima de ~900ms antes de trocar estado
+
+      const wait = elapsed < 900 ? 900 - elapsed : 0;
+
       setTimeout(() => {
         setSyncStatus(status);
+
         setTimeout(() => loadingSheetRef.current?.close(), 1100);
       }, wait);
     };
+
+    console.log('[x] - response', response);
 
     if (response.success) {
       const requestReference = {
@@ -269,6 +277,8 @@ export default function AddReportOrderService({ navigation, route }) {
       }
 
       if (response.is_exists) {
+        console.log('[x] - is_exists', response.is_exists);
+
         const requestReference = {
           id: idReport,
           order_service: {

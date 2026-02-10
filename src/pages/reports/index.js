@@ -9,8 +9,6 @@ import { addReport, getReport } from '../../storage/report';
 import { duplicateReport, removeReport } from '../../storage/report';
 import { formatDateTime } from '../../util/date';
 import SearchWithAdd from '../../components/SearchWithAdd';
-import Button from '../../components/Button';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import InfoBanner from '../../components/InfoBanner';
 
 const Reports = ({ navigation }) => { 
@@ -24,7 +22,7 @@ const Reports = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [actionItem, setActionItem] = useState(null);
   const actionSheetRef = useRef(null);
-  const [filterMode, setFilterMode] = useState('all'); // 'all' | 'company' | 'equipament'
+  const [filterMode, setFilterMode] = useState('all');
 
   useEffect(() => {
     if (isFocused) start();

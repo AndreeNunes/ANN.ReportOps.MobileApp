@@ -19,50 +19,83 @@ export const reportsService = {
         }
     },
     addReport: async (report) => {
-        const response = await api.post('/v1/report', report);
+        const response = await api.post('/v1/report', report)
+            .then(response => {
+                if (response.status !== 200) {
+                    return {
+                        success: false,
+                        message: response.data.message || 'Erro ao adicionar relatório',
+                    };
+                }
 
-        if (response.status !== 200) {
+                return {
+                    success: true,
+                    is_exists: response?.data?.data?.is_exists,
+                    data: response?.data?.data?.report,
+                };
+            })
+            .catch(error => {
+                console.log('[x] - error', error);
+                return {
+                    success: false,
+                    message: error.response?.data?.message || 'Erro ao adicionar relatório',
+                };
+            });
 
-            return {
-                success: false,
-                message: response.data.message || 'Erro ao adicionar relatório',
-            };
-        }
-
-        return {
-            success: true,
-            is_exists: response?.data?.data?.is_exists,
-            data: response?.data?.data?.report,
-        }
+        return response;
     },
     addReportReference: async (reportReference) => {
-        const response = await api.post('/v1/report/reference', reportReference);
+        const response = await api.post('/v1/report/reference', reportReference)
+            .then(response => {
+                if (response.status !== 200) {
+                    return {
+                        success: false,
+                        message: response.data.message || 'Erro ao adicionar a referência do relatório',
+                    };
+                }
 
-        if (response.status !== 200) {
-            return {
-                success: false,
-                message: response.data.message || 'Erro ao adicionar a referência do relatório',
-            };
-        }
+                return {
+                    success: true,
+                    data: response.data,
+                };
+            })
+            .catch(error => {
+                console.log('[x] - error', error);
+                
+                return {
+                    success: false,
+                    message: error.response?.data?.message || 'Erro ao adicionar a referência do relatório',
+                };
+            });
 
-        return {
-            success: true,
-            data: response.data,
-        }
+        return response;
     },
     putReportReference: async (reportReference) => {
-        const response = await api.put('/v1/report/reference', reportReference);
+        const response = await api.put('/v1/report/reference', reportReference)
+            .then(response => {
+                if (response.status !== 200) {
+                    return {
+                        success: false,
+                        message: response.data.message || 'Erro ao atualizar a referência do relatório',
+                    }
+                }
 
-        if (response.status !== 200) {
-            return {
-                success: false,
-                message: response.data.message || 'Erro ao atualizar a referência do relatório',
-            };
-        }
+                return {
+                    success: true,
+                    data: response.data,
+                }
+            })
+            .catch(error => {
+                console.log('[x] - error', error);
 
-        return {
-            success: true,
-            data: response.data,
-        }
+                return {
+                    success: false,
+                    message: error.response?.data?.message || 'Erro ao atualizar a referência do relatório',
+                };
+            });
+
+        console.log('[x] - response', response);
+
+        return response;
     }
 }

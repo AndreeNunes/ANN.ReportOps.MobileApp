@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import Reports from '../pages/reports';
 import Dashboard from '../pages/dashboard';
+import Profile from '../pages/profile';
 import { headerStyle, headerTitleStyle, tabBarLabelStyle, tabBarStyle } from './styles';
 
 const Tab = createBottomTabNavigator();
@@ -52,7 +53,7 @@ export default function BottomTabs() {
       />
       <Tab.Screen 
         name="Profile" 
-        component={Dashboard}
+        component={Profile}
         options={{ title: 'Perfil' }}
       />
     </Tab.Navigator>
