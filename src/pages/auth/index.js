@@ -4,7 +4,7 @@ import TextInput from "../../components/TextInput";
 import styles from "./styles";
 import Button from "../../components/Button";
 import { authService } from "../../service/auth";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 const Auth = ({ navigation }) => {

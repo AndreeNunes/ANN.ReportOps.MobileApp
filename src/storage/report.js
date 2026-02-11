@@ -20,6 +20,12 @@ export async function getReportById(id) {
     return reports.find(r => r.id === id);
 }
 
+export async function getReportByRemoteId(remoteId) {
+    if (!remoteId) return null;
+    const reports = await getReport();
+    return reports.find(r => r.remote_id === remoteId);
+}
+
 export async function addReport() {
     const reports = await getReport();
 
@@ -38,6 +44,62 @@ export async function addReport() {
 
     reports.push(report);
 
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+
+    return report;
+}
+
+function mapRemoteToOrderService(remote) {
+    if (!remote || typeof remote !== 'object') {
+        return { ...ORDEM_SERVICE };
+    }
+    const {
+        id,
+        created_at,
+        updated_at,
+        id_company,
+        id_equipament,
+        ...rest
+    } = remote || {};
+    
+    // Garante os campos esperados e zera anexos/assinatura locais
+    return {
+        ...ORDEM_SERVICE,
+        ...rest,
+        company: remote?.company ?? null,
+        equipament: remote?.equipament ?? null,
+        attachments: [],
+        signature: null,
+    };
+}
+
+export async function addReportFromServer(remoteReport) {
+    const reports = await getReport();
+    
+    // Evita duplicação caso já exista pelo remote_id
+    const exists = reports.find(r => r.remote_id === remoteReport?.id);
+    if (exists) {
+        return exists;
+    }
+
+    const orderServiceDto = mapRemoteToOrderService(remoteReport);
+    const idOrderService = await addOrderService(orderServiceDto);
+
+    const date = remoteReport?.created_at || getCurrentDate();
+
+    const report = {
+        ...REPORT,
+        id: uuid.v4(),
+        id_report: idOrderService,
+        created_at: date,
+        OS_number: remoteReport?.OS_number ?? '',
+        company_name: remoteReport?.company?.name ?? '',
+        equipament_name: remoteReport?.equipament?.name ?? '',
+        sync: true,
+        remote_id: remoteReport?.id,
+    };
+
+    reports.push(report);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
 
     return report;

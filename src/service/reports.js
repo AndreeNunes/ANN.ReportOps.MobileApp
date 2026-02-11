@@ -18,6 +18,50 @@ export const reportsService = {
             data: data,
         }
     },
+    getReportIds: async () => {
+        try {
+            const response = await api.get('/v1/report/ids');
+            
+            if (response.status !== 200) {
+                return {
+                    success: false,
+                    message: response.data?.message || 'Erro ao buscar IDs de relatórios',
+                };
+            }
+            
+            return {
+                success: true,
+                data: response.data?.data || [],
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error?.response?.data?.message || 'Erro ao buscar IDs de relatórios',
+            };
+        }
+    },
+    getReportsByIds: async (ids = []) => {
+        try {
+            const response = await api.post('/v1/report/references/ids', { ids });
+            
+            if (response.status !== 200) {
+                return {
+                    success: false,
+                    message: response.data?.message || 'Erro ao buscar relatórios por IDs',
+                };
+            }
+            
+            return {
+                success: true,
+                data: response.data?.data || [],
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error?.response?.data?.message || 'Erro ao buscar relatórios por IDs',
+            };
+        }
+    },
     addReport: async (report) => {
         const response = await api.post('/v1/report', report)
             .then(response => {

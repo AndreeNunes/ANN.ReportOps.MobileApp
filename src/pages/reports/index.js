@@ -1,15 +1,19 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles';
 import BottomSheetComponent from '../../components/BottomSheet';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
-import { addReport, getReport } from '../../storage/report';
+import { addReport, getReport, addReportFromServer } from '../../storage/report';
 import { duplicateReport, removeReport } from '../../storage/report';
 import { formatDateTime } from '../../util/date';
 import SearchWithAdd from '../../components/SearchWithAdd';
 import InfoBanner from '../../components/InfoBanner';
+import LottieView from 'lottie-react-native';
+import { isConnectedNetwork } from '../../util/network';
+import { reportsService } from '../../service/reports';
+import { getFirstLoginSyncPrompted, setFirstLoginSyncPrompted } from '../../storage/sync_prefs';
 
 const Reports = ({ navigation }) => { 
   const [reports, setReports] = useState([]);
@@ -23,11 +27,48 @@ const Reports = ({ navigation }) => {
   const [actionItem, setActionItem] = useState(null);
   const actionSheetRef = useRef(null);
   const [filterMode, setFilterMode] = useState('all');
+  const syncSheetRef = useRef(null);
+  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [syncText, setSyncText] = useState('');
 
   useEffect(() => {
-    if (isFocused) start();
+    if (isFocused) {
+      start();
+      (async () => {
+        const prompted = await getFirstLoginSyncPrompted();
+        if (!prompted) {
+          Alert.alert(
+            'Sincronizar agora?',
+            'Deseja sincronizar seus relatórios do servidor neste dispositivo?',
+            [
+              { text: 'Agora não', style: 'cancel', onPress: async () => {
+                await setFirstLoginSyncPrompted(true);
+              }},
+              { text: 'Sim, sincronizar', onPress: async () => {
+                await setFirstLoginSyncPrompted(true);
+                handleSyncFromServer();
+              }},
+            ]
+          );
+        }
+      })();
+    }
     
   }, [isFocused]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={handleSyncFromServer}
+          style={{ paddingRight: 12, paddingVertical: 6 }}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="sync-outline" size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const start = async () => {
     setIsLoading(true);
@@ -38,6 +79,66 @@ const Reports = ({ navigation }) => {
 
     setIsLoading(false);
   }
+
+  const handleSyncFromServer = async () => {
+    const isConnected = await isConnectedNetwork();
+    if (!isConnected) {
+      Alert.alert('Sem conexão', 'Conecte-se à internet para sincronizar.');
+      return;
+    }
+    try {
+      setSyncStatus('loading');
+      setSyncText('Buscando IDs de relatórios...');
+      syncSheetRef.current?.expand();
+
+      const idsResp = await reportsService.getReportIds();
+      if (!idsResp.success) {
+        throw new Error(idsResp.message || 'Falha ao buscar IDs');
+      }
+
+      const serverIds = Array.isArray(idsResp.data) ? idsResp.data : [];
+      const local = await getReport();
+      const localSyncedIds = new Set(
+        (local || [])
+          .filter(r => r?.sync && r?.remote_id)
+          .map(r => r.remote_id)
+      );
+
+      const idsToFetch = serverIds.filter(id => !localSyncedIds.has(id));
+
+      if (!idsToFetch.length) {
+        setSyncText('Nenhum novo relatório para importar.');
+        setSyncStatus('success');
+        setTimeout(() => {
+          syncSheetRef.current?.close();
+        }, 1200);
+        return;
+      }
+
+      setSyncText(`Baixando ${idsToFetch.length} relatório(s)...`);
+      const refsResp = await reportsService.getReportsByIds(idsToFetch);
+      if (!refsResp.success) {
+        throw new Error(refsResp.message || 'Falha ao buscar relatórios por IDs');
+      }
+
+      const items = Array.isArray(refsResp.data) ? refsResp.data : [];
+      let imported = 0;
+      for (const item of items) {
+        await addReportFromServer(item);
+        imported += 1;
+      }
+
+      setSyncText(`Importados ${imported} relatório(s) com sucesso.`);
+      setSyncStatus('success');
+      await start();
+      setTimeout(() => {
+        syncSheetRef.current?.close();
+      }, 1200);
+    } catch (e) {
+      setSyncText(e?.message || 'Erro durante a sincronização.');
+      setSyncStatus('error');
+    }
+  };
 
   const goToReportOrderService = async () => {
     console.log("[x] - Adicionando relatório...")
@@ -280,6 +381,45 @@ const Reports = ({ navigation }) => {
             <Ionicons name="trash-outline" size={20} color="#B91C1C" />
             <Text style={{ marginLeft: 8, fontSize: 16, color: '#B91C1C' }}>Excluir</Text>
           </TouchableOpacity>
+        </View>
+      </BottomSheetComponent>
+
+      <BottomSheetComponent
+        bottomSheetRef={syncSheetRef}
+        title={syncStatus === 'loading' ? 'Sincronizando' : syncStatus === 'success' ? 'Concluído' : 'Falhou'}
+      >
+        <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+          {syncStatus === 'loading' && (
+            <LottieView
+              source={require('../../../assets/animations/loading_sync.json')}
+              autoPlay
+              loop
+              style={{ width: 140, height: 140 }}
+            />
+          )}
+          {syncStatus === 'success' && (
+            <LottieView
+              source={require('../../../assets/animations/success_sync.json')}
+              autoPlay
+              loop={false}
+              style={{ width: 140, height: 140 }}
+            />
+          )}
+          {syncStatus === 'error' && (
+            <LottieView
+              source={require('../../../assets/animations/error_sync.json')}
+              autoPlay
+              loop={false}
+              style={{ width: 140, height: 140 }}
+            />
+          )}
+          <Text style={{ marginTop: 8, fontFamily: 'Inter-Regular', color: '#333' }}>
+            {syncStatus === 'loading'
+              ? (syncText || 'Sincronizando...')
+              : syncStatus === 'success'
+              ? (syncText || 'Dados sincronizados com sucesso!')
+              : (syncText || 'Ocorreu um erro na sincronização.')}
+          </Text>
         </View>
       </BottomSheetComponent>
     </View>
