@@ -379,7 +379,7 @@ export function reportTemplate(dto) {
 
               <table class="equip-table">
                 <tr class="equip-row">
-                  <td class="equip-cell">Modelo de IHM: ${dto?.equipament?.hmi_model ?? 'N/A'}</td>
+                  <td class="equip-cell">Modelo de IHM: ${dto?.equipament?.ihm_model ?? 'N/A'}</td>
                   <td class="equip-cell">Pressão de trabalho: ${dto?.equipament?.working_pressure ?? 'N/A'}</td>
                 </tr>
               </table>
@@ -412,12 +412,6 @@ export function reportTemplate(dto) {
               <table class="considerations-table">
                 <tr class="considerations-row">
                   <td class="considerations-cell">Defeito/Situação encontrada: ${dto?.cga_reported_defect != null ? '<br /> ' : ''} ${dto?.cga_reported_defect ?? 'N/A'}</td>
-                </tr>
-              </table>
-
-              <table class="considerations-table">
-                <tr class="considerations-row">
-                  <td class="considerations-cell">Provável causa: ${dto?.cga_probable_cause != null ? '<br /> ' : ''} ${dto?.cga_probable_cause ?? 'N/A'}</td>
                 </tr>
               </table>
 

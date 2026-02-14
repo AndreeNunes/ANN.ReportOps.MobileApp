@@ -8,7 +8,6 @@ export const ORDEM_SERVICE = {
   
     cga_reason_visit: null,
     cga_reported_defect: null,
-    cga_probable_cause: null,
     cga_solution_applied: null,
     cga_replaced_parts: null,
     cga_parts_to_replace: null,

@@ -170,7 +170,6 @@ export default function AddReportOrderService({ navigation, route }) {
     const topicFields = [
       'cga_reason_visit',
       'cga_reported_defect',
-      'cga_probable_cause',
       'cga_solution_applied',
       'cga_replaced_parts',
       'cga_parts_to_replace',

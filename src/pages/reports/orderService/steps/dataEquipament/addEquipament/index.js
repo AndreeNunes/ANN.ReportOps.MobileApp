@@ -18,7 +18,7 @@ export default function AddEquipament({ route, navigation }) {
   const [eqEquipment, setEqEquipment] = useState(equipament?.name ?? null);
   const [eqManufactureDate, setEqManufactureDate] = useState(equipament?.manufacture_date ?? null);
   const [eqCompressorUnitModel, setEqCompressorUnitModel] = useState(equipament?.compressor_unit_model ?? null);
-  const [eqHmiModel, setEqHmiModel] = useState(equipament?.hmi_model ?? null);
+  const [eqIhmModel, setEqIhmModel] = useState(equipament?.ihm_model ?? null);
   const [eqSupplyVoltage, setEqSupplyVoltage] = useState(equipament?.supply_voltage ?? null);
   const [eqIntakeSolenoidVoltage, setEqIntakeSolenoidVoltage] = useState(equipament?.intake_solenoid_voltage ?? null);
   const [eqCurrentHourMeter, setEqCurrentHourMeter] = useState(equipament?.current_hour_meter ?? null);
@@ -50,7 +50,7 @@ export default function AddEquipament({ route, navigation }) {
         name: eqEquipment,
         manufacture_date: eqManufactureDate,
         compressor_unit_model: eqCompressorUnitModel,
-        hmi_model: eqHmiModel,
+        ihm_model: eqIhmModel,
         supply_voltage: eqSupplyVoltage,
         intake_solenoid_voltage: eqIntakeSolenoidVoltage,
         current_hour_meter: eqCurrentHourMeter,
@@ -155,10 +155,10 @@ export default function AddEquipament({ route, navigation }) {
         <View style={{ height: 32 }} />
 
         <TextInput
-          label="Modelo do HMI"
-          placeholder="Digite o modelo do HMI"
-          value={eqHmiModel}
-          onChangeText={setEqHmiModel}
+          label="Modelo do IHM"
+          placeholder="Digite o modelo do IHM"
+          value={eqIhmModel}
+          onChangeText={setEqIhmModel}
         />
 
         <View style={{ height: 32 }} />

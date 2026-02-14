@@ -15,7 +15,6 @@ export default function DataGeneralServiceNotes({ route, navigation }) {
 
     const [cgaReasonVisit, setCgaReasonVisit] = useState(null);
     const [cgaReportedDefect, setCgaReportedDefect] = useState(null);
-    const [cgaProbableCause, setCgaProbableCause] = useState(null);
     const [cgaSolutionApplied, setCgaSolutionApplied] = useState(null);
     const [cgaReplacedParts, setCgaReplacedParts] = useState(null);
     const [cgaPartsToReplace, setCgaPartsToReplace] = useState(null);
@@ -24,7 +23,6 @@ export default function DataGeneralServiceNotes({ route, navigation }) {
         if (orderService) {
             setCgaReasonVisit(orderService.cga_reason_visit);
             setCgaReportedDefect(orderService.cga_reported_defect);
-            setCgaProbableCause(orderService.cga_probable_cause);
             setCgaSolutionApplied(orderService.cga_solution_applied);
             setCgaReplacedParts(orderService.cga_replaced_parts);
             setCgaPartsToReplace(orderService.cga_parts_to_replace);
@@ -49,7 +47,6 @@ export default function DataGeneralServiceNotes({ route, navigation }) {
         await updateOrderService(id, {
             cga_reason_visit: cgaReasonVisit,
             cga_reported_defect: cgaReportedDefect,
-            cga_probable_cause: cgaProbableCause,
             cga_solution_applied: cgaSolutionApplied,
             cga_replaced_parts: cgaReplacedParts,
             cga_parts_to_replace: cgaPartsToReplace,
@@ -99,17 +96,6 @@ export default function DataGeneralServiceNotes({ route, navigation }) {
                     placeholder="Digite o defeito/situação encontrada"
                     value={cgaReportedDefect}
                     onChangeText={text => setCgaReportedDefect(text)}
-                    multiline={true}
-                    numberOfLines={14}
-                />
-
-                <View style={{ height: 32 }} />
-
-                <TextInput
-                    label="Provável causa"
-                    placeholder="Digite a provável causa"
-                    value={cgaProbableCause}
-                    onChangeText={text => setCgaProbableCause(text)}
                     multiline={true}
                     numberOfLines={14}
                 />
