@@ -54,6 +54,7 @@ export default function DataRequiredReadings({ route, navigation }) {
         const normalized2 = [(parts2[0] || ''), (parts2[1] || ''), (parts2[2] || '')].join('&');
         setRrSupplyVoltageUnloaded(normalized2);
       }
+      
       setRrServiceFactorCurrent(orderService.rr_service_factor_current);
       setRrElectricalCurrentUnderLoad(orderService.rr_electrical_current_under_load);
       setRrElectricalCurrentUnloaded(orderService.rr_electrical_current_unloaded);
@@ -79,6 +80,15 @@ export default function DataRequiredReadings({ route, navigation }) {
         ? [supplyUnloadedR || '', supplyUnloadedS || '', supplyUnloadedT || ''].join('&')
         : null;
 
+    const normalizedCurrentUnderLoad =
+      [currentUnderLoadR, currentUnderLoadS, currentUnderLoadT].some(Boolean)
+        ? [currentUnderLoadR || '', currentUnderLoadS || '', currentUnderLoadT || ''].join('&')
+        : null;
+    const normalizedCurrentUnloaded =
+      [currentUnloadedR, currentUnloadedS, currentUnloadedT].some(Boolean)
+        ? [currentUnloadedR || '', currentUnloadedS || '', currentUnloadedT || ''].join('&')
+        : null;
+
     await updateOrderService(id, {
       rr_lubricating_oil_level: rrLubricatingOilLevel,
       rr_oil_stock_quantity: rrOilStockQuantity,
@@ -87,8 +97,8 @@ export default function DataRequiredReadings({ route, navigation }) {
       rr_supply_voltage_under_load: normalizedUnderLoad,
       rr_supply_voltage_unloaded: normalizedUnloaded,
       rr_service_factor_current: rrServiceFactorCurrent,
-      rr_electrical_current_under_load: rrElectricalCurrentUnderLoad,
-      rr_electrical_current_unloaded: rrElectricalCurrentUnloaded,
+      rr_electrical_current_under_load: normalizedCurrentUnderLoad,
+      rr_electrical_current_unloaded: normalizedCurrentUnloaded,
       rr_fan_motor_current: rrFanMotorCurrent,
       rr_compressor_operating_temperature: rrCompressorOperatingTemperature,
       rr_dryer_current: rrDryerCurrent,
@@ -113,6 +123,15 @@ export default function DataRequiredReadings({ route, navigation }) {
   const supplyUnloadedS = supplyUnloadedParts[1] || '';
   const supplyUnloadedT = supplyUnloadedParts[2] || '';
 
+  const currentUnderLoadParts = (rrElectricalCurrentUnderLoad || '&&').split('&');
+  const currentUnderLoadR = currentUnderLoadParts[0] || '';
+  const currentUnderLoadS = currentUnderLoadParts[1] || '';
+  const currentUnderLoadT = currentUnderLoadParts[2] || '';
+  const currentUnloadedParts = (rrElectricalCurrentUnloaded || '&&').split('&');
+  const currentUnloadedR = currentUnloadedParts[0] || '';
+  const currentUnloadedS = currentUnloadedParts[1] || '';
+  const currentUnloadedT = currentUnloadedParts[2] || '';
+
   return (
     <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -134,9 +153,9 @@ export default function DataRequiredReadings({ route, navigation }) {
           <SegmentedRadio
             label="Nível de óleo lubrificante"
             options={[
-              { label: 'BAIXO', value: 'BAIXO' },
-              { label: 'MEDIO', value: 'MEDIO' },
-              { label: 'MAXIMO', value: 'MAXIMO' },
+              { label: 'BAIXO', value: 'BAIXO', color: '#dc2626' },
+              { label: 'MEDIO', value: 'MEDIO', color: '#f59e0b' },
+              { label: 'MAXIMO', value: 'MAXIMO', color: '#16a34a' },
             ]}
             value={rrLubricatingOilLevel}
             onChange={setRrLubricatingOilLevel}
@@ -260,9 +279,31 @@ export default function DataRequiredReadings({ route, navigation }) {
 
           <MaskedInput
             label="Corrente elétrica com carga"
-            placeholder="Digite a corrente elétrica com carga"
-            value={rrElectricalCurrentUnderLoad}
-            onChangeText={setRrElectricalCurrentUnderLoad}
+            placeholder="Digite o R"
+            value={currentUnderLoadR}
+            onChangeText={(v) => setRrElectricalCurrentUnderLoad([v, currentUnderLoadS, currentUnderLoadT].join('&'))}
+            suffixText="A"
+            mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+            keyboardType="number-pad"
+          />
+
+          <View style={{ height: 16 }} />
+
+          <MaskedInput
+            placeholder="Digite o S"
+            value={currentUnderLoadS}
+            onChangeText={(v) => setRrElectricalCurrentUnderLoad([currentUnderLoadR, v, currentUnderLoadT].join('&'))}
+            suffixText="A"
+            mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+            keyboardType="number-pad"
+          />
+
+          <View style={{ height: 16 }} />
+
+          <MaskedInput
+            placeholder="Digite o T"
+            value={currentUnderLoadT}
+            onChangeText={(v) => setRrElectricalCurrentUnderLoad([currentUnderLoadR, currentUnderLoadS, v].join('&'))}
             suffixText="A"
             mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
             keyboardType="number-pad"
@@ -272,9 +313,31 @@ export default function DataRequiredReadings({ route, navigation }) {
 
           <MaskedInput
             label="Corrente elétrica em alívio"
-            placeholder="Digite a corrente elétrica em alívio"
-            value={rrElectricalCurrentUnloaded}
-            onChangeText={setRrElectricalCurrentUnloaded}
+            placeholder="Digite o R"
+            value={currentUnloadedR}
+            onChangeText={(v) => setRrElectricalCurrentUnloaded([v, currentUnloadedS, currentUnloadedT].join('&'))}
+            suffixText="A"
+            mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+            keyboardType="number-pad"
+          />
+
+          <View style={{ height: 16 }} />
+
+          <MaskedInput
+            placeholder="Digite o S"
+            value={currentUnloadedS}
+            onChangeText={(v) => setRrElectricalCurrentUnloaded([currentUnloadedR, v, currentUnloadedT].join('&'))}
+            suffixText="A"
+            mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+            keyboardType="number-pad"
+          />
+
+          <View style={{ height: 16 }} />
+
+          <MaskedInput
+            placeholder="Digite o T"
+            value={currentUnloadedT}
+            onChangeText={(v) => setRrElectricalCurrentUnloaded([currentUnloadedR, currentUnloadedS, v].join('&'))}
             suffixText="A"
             mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
             keyboardType="number-pad"

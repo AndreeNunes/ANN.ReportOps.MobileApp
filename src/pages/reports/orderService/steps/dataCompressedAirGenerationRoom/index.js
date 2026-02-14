@@ -7,7 +7,7 @@ import styles from "./styles";
 import { updateOrderService } from "../../../../../storage/order_service";
 import { updateReport } from "../../../../../storage/report";
 
-export default function DataCompressedAirGenerationRoom({route, navigation}) {
+export default function DataCompressedAirGenerationRoom({ route, navigation }) {
   const id = route?.params?.id || null;
   const orderService = route?.params?.orderService || null;
 
@@ -91,8 +91,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Equipamento possui duto para retirada de ar quente regularizado?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crHotAirDuctOk}
           onChange={(value) => {
@@ -114,8 +114,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
                 onChange={setCrHotAirDuctRegularized}
                 label="Duto regularizado?"
                 options={[
-                  { label: 'SIM', value: true },
-                  { label: 'NÃO', value: false },
+                  { label: 'SIM', value: true, color: '#16a34a' },
+                  { label: 'NÃO', value: false, color: '#dc2626' },
                 ]}
               />
 
@@ -127,32 +127,44 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Temperatura e ventilação da sala são adequadas? (A temperatura deve ser até 35°C)"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crRoomTempVentOk}
-          onChange={setCrRoomTempVentOk}
+          onChange={(value) => {
+            setCrRoomTempVentOk(value);
+
+            if (value === true) {
+              setCrRoomNotes(null);
+            }
+          }}
         />
 
-        <View style={{ height: 32 }} />
-
-        <TextInput
-          label="Observações"
-          placeholder="Digite as observações"
-          value={crRoomNotes}
-          onChangeText={setCrRoomNotes}
-          multiline={true}
-          numberOfLines={14}
-        />
+        {
+          crRoomTempVentOk === false && (
+            <>
+              <View style={{ height: 32 }} />
+              
+              <TextInput
+                label="Observações"
+                placeholder="Digite as observações"
+                value={crRoomNotes}
+                onChangeText={setCrRoomNotes}
+                multiline={true}
+                numberOfLines={14}
+              />
+            </>
+          )
+        }
 
         <View style={{ height: 32 }} />
 
         <SegmentedRadio
           label="Condições do ambiente de instalação do compressor?"
           options={[
-            { label: 'BOA', value: "BOA" },
-            { label: 'REGULAR', value: "REGULAR" },
-            { label: 'AGRESSIVA', value: "AGRESSIVO" },
+            { label: 'BOA', value: "BOA", color: '#16a34a' },
+            { label: 'REGULAR', value: "REGULAR", color: '#f59e0b' },
+            { label: 'AGRESSIVA', value: "AGRESSIVO", color: '#dc2626' },
           ]}
           value={crInstallEnvCondition}
           onChange={setCrInstallEnvCondition}
@@ -163,8 +175,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Existe risco de acidente?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crAccidentRisk}
           onChange={setCrAccidentRisk}
@@ -175,8 +187,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Instalação elétrica está adequada?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crElectricalInstallOk}
           onChange={setCrElectricalInstallOk}
@@ -187,8 +199,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Instalação possui aterramento para sua segurança?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crGroundingOk}
           onChange={setCrGroundingOk}
@@ -199,8 +211,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="A sala possui iluminação adequada?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crRoomLightingOk}
           onChange={setCrRoomLightingOk}
@@ -211,8 +223,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Existe tomada de serviço 220V?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crServiceOutlet220v}
           onChange={setCrServiceOutlet220v}
@@ -223,8 +235,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Sala possui ponto de ar com mangueira para limpeza do compressor?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crAirPointForCleaning}
           onChange={setCrAirPointForCleaning}
@@ -235,8 +247,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Sala possui ponto de água com torneira para hidrolavadora?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crWaterPointAvailable}
           onChange={setCrWaterPointAvailable}
@@ -247,8 +259,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Compressor atente os distanciamento exigidos para um bom funcionamento?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crDistancingOk}
           onChange={setCrDistancingOk}
@@ -259,8 +271,8 @@ export default function DataCompressedAirGenerationRoom({route, navigation}) {
         <SegmentedRadio
           label="Acesso ao compressor é correto e seguro?"
           options={[
-            { label: 'SIM', value: true },
-            { label: 'NÃO', value: false },
+            { label: 'SIM', value: true, color: '#16a34a' },
+            { label: 'NÃO', value: false, color: '#dc2626' },
           ]}
           value={crCompressorOk}
           onChange={setCrCompressorOk}

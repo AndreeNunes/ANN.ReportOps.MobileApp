@@ -97,14 +97,6 @@ export default function AddReportOrderService({ navigation, route }) {
       orderService.current.rr_service_factor_current = orderService.current.rr_service_factor_current + 'A';
     }
 
-    if (orderService.current?.rr_electrical_current_under_load) {
-      orderService.current.rr_electrical_current_under_load = orderService.current.rr_electrical_current_under_load + 'A';
-    }
-
-    if (orderService.current?.rr_electrical_current_unloaded) {
-      orderService.current.rr_electrical_current_unloaded = orderService.current.rr_electrical_current_unloaded + 'A';
-    }
-
     if (orderService.current?.rr_fan_motor_current) {
       orderService.current.rr_fan_motor_current = orderService.current.rr_fan_motor_current + 'A';
     }
@@ -181,29 +173,43 @@ export default function AddReportOrderService({ navigation, route }) {
       orderService.current[field] = toTopicsHtml(orderService.current[field]);
     });
 
-  const splitRST = (value) => {
-    if (value == null || value === '') return ['', '', ''];
-    const parts = String(value).split('&');
-    return [(parts[0] || '').trim(), (parts[1] || '').trim(), (parts[2] || '').trim()];
-  };
+    const splitRST = (value) => {
+      if (value == null || value === '') return ['', '', ''];
+      const parts = String(value).split('&');
+      return [(parts[0] || '').trim(), (parts[1] || '').trim(), (parts[2] || '').trim()];
+    };
 
-  const withUnitOrNA = (v, unit) => (v ? `${v}${unit}` : 'N/A');
+    const withUnitOrNA = (v, unit) => (v ? `${v}${unit}` : 'N/A');
 
-  {
-    const [r, s, t] = splitRST(orderService.current?.rr_supply_voltage_under_load);
-    orderService.current.rr_supply_voltage_under_load_R = withUnitOrNA(r, 'V');
-    orderService.current.rr_supply_voltage_under_load_S = withUnitOrNA(s, 'V');
-    orderService.current.rr_supply_voltage_under_load_T = withUnitOrNA(t, 'V');
-  }
+    {
+      const [r, s, t] = splitRST(orderService.current?.rr_supply_voltage_under_load);
+      orderService.current.rr_supply_voltage_under_load_R = withUnitOrNA(r, 'V');
+      orderService.current.rr_supply_voltage_under_load_S = withUnitOrNA(s, 'V');
+      orderService.current.rr_supply_voltage_under_load_T = withUnitOrNA(t, 'V');
+    }
 
-  {
-    const [r, s, t] = splitRST(orderService.current?.rr_supply_voltage_unloaded);
+    {
+      const [r, s, t] = splitRST(orderService.current?.rr_supply_voltage_unloaded);
 
-    orderService.current.rr_supply_voltage_unloaded_R = withUnitOrNA(r, 'V');
-    orderService.current.rr_supply_voltage_unloaded_S = withUnitOrNA(s, 'V');
-    orderService.current.rr_supply_voltage_unloaded_T = withUnitOrNA(t, 'V');
-  }
-    
+      orderService.current.rr_supply_voltage_unloaded_R = withUnitOrNA(r, 'V');
+      orderService.current.rr_supply_voltage_unloaded_S = withUnitOrNA(s, 'V');
+      orderService.current.rr_supply_voltage_unloaded_T = withUnitOrNA(t, 'V');
+    }
+
+    {
+      const [r, s, t] = splitRST(orderService.current?.rr_electrical_current_under_load);
+      orderService.current.rr_electrical_current_under_load_R = withUnitOrNA(r, 'A');
+      orderService.current.rr_electrical_current_under_load_S = withUnitOrNA(s, 'A');
+      orderService.current.rr_electrical_current_under_load_T = withUnitOrNA(t, 'A');
+    }
+
+    {
+      const [r, s, t] = splitRST(orderService.current?.rr_electrical_current_unloaded);
+      orderService.current.rr_electrical_current_unloaded_R = withUnitOrNA(r, 'A');
+      orderService.current.rr_electrical_current_unloaded_S = withUnitOrNA(s, 'A');
+      orderService.current.rr_electrical_current_unloaded_T = withUnitOrNA(t, 'A');
+    }
+
     let logoUri = null;
 
     try {

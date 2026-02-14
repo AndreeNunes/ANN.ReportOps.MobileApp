@@ -1,14 +1,22 @@
 import { CameraView, useCameraPermissions } from 'expo-camera'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, ActivityIndicator, Linking } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { addAttachment } from '../../../../../../service/reportOrdemServiceAttachment'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import TextInput from '../../../../../../components/TextInput'
+import Button from '../../../../../../components/Button'
+import { getOrderServiceById, updateOrderService } from '../../../../../../storage/order_service'
 
 export default function TakePicture({ navigation, route }) {
   const cameraRef = useRef(null)
   const [permission, requestPermission] = useCameraPermissions()
   const onPhotoTaken = route?.params?.onPhotoTaken || null
+  const reportId = route?.params?.id || null
+
+  const [capturedUri, setCapturedUri] = useState(null)
+  const [observation, setObservation] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   if (!permission) {
     return (
@@ -57,13 +65,51 @@ export default function TakePicture({ navigation, route }) {
       quality: 0.8
     })
   
-    if (onPhotoTaken) {
-      onPhotoTaken(photo.uri)
-    }
-
-    navigation.goBack()
+    setCapturedUri(photo.uri)
   }
   
+  const handleSaveObservation = async () => {
+    if (!capturedUri) return
+    try {
+      setIsSaving(true)
+
+      if (reportId) {
+        const current = await getOrderServiceById(reportId)
+        const existingNotes = current?.attachments_notes || {}
+        const nextNotes = { ...existingNotes }
+        if (observation && observation.trim().length > 0) {
+          nextNotes[capturedUri] = observation.trim()
+        }
+        await updateOrderService(reportId, { attachments_notes: nextNotes })
+      }
+
+      if (onPhotoTaken) {
+        onPhotoTaken(capturedUri)
+      }
+      navigation.goBack()
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (capturedUri) {
+    return (
+      <SafeAreaView style={{ flex: 1, padding: 16 }} edges={['bottom']}>
+        <Text style={{ fontSize: 18, marginBottom: 12 }}>Deseja adicionar uma observação?</Text>
+        <TextInput
+          label=""
+          placeholder="Digite a observação (opcional)"
+          value={observation}
+          onChangeText={setObservation}
+          multiline={true}
+          numberOfLines={6}
+        />
+        <View style={{ flex: 1 }} />
+        <Button title="Salvar" onPress={handleSaveObservation} loading={isSaving} />
+      </SafeAreaView>
+    )
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <CameraView

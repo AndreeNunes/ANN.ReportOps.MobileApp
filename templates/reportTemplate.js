@@ -316,6 +316,13 @@ export function reportTemplate(dto) {
               object-fit: contain;
               display: block;
             }
+            .attachment-item .attachment-note {
+              margin-top: 6px;
+              font-size: 12px;
+              color: #111827;
+              line-height: 1.3;
+              word-break: break-word;
+            }
             
             .topics {
               margin: 6px 0 0 0;
@@ -324,6 +331,15 @@ export function reportTemplate(dto) {
             .topics li {
               margin: 4px 0;
             }
+
+            .remove-border-top {
+              border-top: none;
+            }
+            
+            /* Text colors for statuses */
+            .text-yes, .text-good { color: #16a34a; }       /* verde */
+            .text-no, .text-aggressive { color: #dc2626; }  /* vermelho */
+            .text-regular { color: #f59e0b; }               /* laranja */
           </style>
         </head>
 
@@ -474,8 +490,25 @@ export function reportTemplate(dto) {
 
               <table class="required-table">
                 <tr class="required-row">
-                  <td class="required-cell">Nível de óleo lubrificante: ${dto?.rr_lubricating_oil_level ?? 'N/A'}</td>
+                  <td class="required-cell-2">Nível de óleo lubrificante:</td>
+                  <td class="required-cell-3"> ${
+                    dto?.rr_lubricating_oil_level
+                      ? `<span class="${
+                          dto?.rr_lubricating_oil_level === 'MAXIMO'
+                            ? 'text-good'
+                            : ((dto?.rr_lubricating_oil_level === 'REGULAR' || dto?.rr_lubricating_oil_level === 'MEDIO')
+                              ? 'text-regular'
+                              : (dto?.rr_lubricating_oil_level === 'BAIXO'
+                                ? 'text-aggressive'
+                                : '')
+                              )
+                        }">${dto?.rr_lubricating_oil_level}</span>`
+                      : 'N/A'
+                  }</td>
                 </tr>
+              </table>
+
+              <table class="required-table">
                 <tr class="required-row">
                   <td class="required-cell">Quantidade de óleo em estoque: ${dto?.rr_oil_stock_quantity ?? 'N/A'}</td>
                 </tr>
@@ -506,12 +539,24 @@ export function reportTemplate(dto) {
                 <tr class="required-row">
                   <td class="required-cell">Corrente do motor elétrico com fator de serviço: ${dto?.rr_service_factor_current ?? 'N/A'}</td>
                 </tr>
+              </table>
+              <table class="required-table">
                 <tr class="required-row">
-                  <td class="required-cell">Corrente elétrica com carga: ${dto?.rr_electrical_current_under_load ?? 'N/A'}</td>
+                  <td class="required-cell-2 required-cell-2-border-bottom">Corrente elétrica com carga:</td>
+                  <td class="required-cell-3 required-cell-2-border-bottom">R: ${dto?.rr_electrical_current_under_load_R ?? 'N/A'}</td>
+                  <td class="required-cell-3 required-cell-2-border-bottom">S: ${dto?.rr_electrical_current_under_load_S ?? 'N/A'}</td>
+                  <td class="required-cell-3 required-cell-2-border-bottom">T: ${dto?.rr_electrical_current_under_load_T ?? 'N/A'}</td>
                 </tr>
+              </table>
+              <table class="required-table">
                 <tr class="required-row">
-                  <td class="required-cell">Corrente elétrica em alívio: ${dto?.rr_electrical_current_unloaded ?? 'N/A'}</td>
+                  <td class="required-cell-2">Corrente elétrica em alívio:</td>
+                  <td class="required-cell-3">R: ${dto?.rr_electrical_current_unloaded_R ?? 'N/A'}</td>
+                  <td class="required-cell-3">S: ${dto?.rr_electrical_current_unloaded_S ?? 'N/A'}</td>
+                  <td class="required-cell-3">T: ${dto?.rr_electrical_current_unloaded_T ?? 'N/A'}</td>
                 </tr>
+              </table>
+              <table class="required-table">
                 <tr class="required-row">
                   <td class="required-cell">Corrente elétrica do motor do ventilador: ${dto?.rr_fan_motor_current ?? 'N/A'}</td>
                 </tr>
@@ -536,70 +581,87 @@ export function reportTemplate(dto) {
               <table class="compressed-air-generation-room-table">
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Equipamento possui duto para retirada de ar quente regularizado?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_hot_air_duct_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_hot_air_duct_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
 
                 ${dto?.cr_hot_air_duct_ok === true ? (
                   `
                     <tr class="compressed-air-generation-room-row">
                       <td class="compressed-air-generation-room-cell">Duto regularizado?</td>
-                      <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_hot_air_duct_regularized ? 'SIM' : 'NÃO'}</td>
+                      <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_hot_air_duct_regularized ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                     </tr>
                   `
                 ) : ``}
                 
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Temperatura e ventilação da sala são adequadas?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_room_temp_vent_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_room_temp_vent_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
               </table>
 
-              <table class="compressed-air-generation-room-table">
-                <tr class="compressed-air-generation-room-row">
-                  <td class="compressed-air-generation-room-cell-3">Observações: ${dto?.cr_room_notes ?? 'N/A'}</td>
-                </tr>
-              </table>
+              ${dto?.cr_room_temp_vent_ok === false ? (
+                `
+                  <table class="compressed-air-generation-room-table">
+                    <tr class="compressed-air-generation-room-row">
+                      <td class="compressed-air-generation-room-cell-3">Observações: ${dto?.cr_room_notes ?? 'N/A'}</td>
+                    </tr>
+                  </table>
+                `
+              ) : ``}
 
               <table class="compressed-air-generation-room-table">
                 <tr class="compressed-air-generation-room-row">
-                  <td class="compressed-air-generation-room-cell">Condições do ambiente de instalação do compressor?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_install_env_condition ?? 'N/A'}</td>
+                  <td class="compressed-air-generation-room-cell${dto?.cr_room_temp_vent_ok ? ' remove-border-top' : ''}">Condições do ambiente de instalação do compressor?</td>
+                  <td class="compressed-air-generation-room-cell-2${dto?.cr_room_temp_vent_ok ? ' remove-border-top' : ''}"> ${
+                    dto?.cr_install_env_condition
+                      ? `<span class="${
+                          dto?.cr_install_env_condition === 'BOA'
+                            ? 'text-good'
+                            : (dto?.cr_install_env_condition === 'REGULAR'
+                              ? 'text-regular'
+                              : ((dto?.cr_install_env_condition === 'AGRESSIVO' || dto?.cr_install_env_condition === 'AGRESSIVA')
+                                ? 'text-aggressive'
+                                : '')
+                              )
+                        }">${dto?.cr_install_env_condition}</span>`
+                      : 'N/A'
+                  }</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Existe risco de acidente?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_accident_risk ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_accident_risk ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Instalação elétrica está adequada?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_electrical_install_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_electrical_install_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Instalação possui aterramento para sua segurança?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_grounding_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_grounding_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Iluminação da sala é adequada?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_room_lighting_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_room_lighting_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Existe tomada de serviço 220V?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_service_outlet_220v ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_service_outlet_220v ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Sala possui ponto de ar com mangueira para limpeza do compressor?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_air_point_for_cleaning ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_air_point_for_cleaning ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Sala possui ponto de água com torneira para hidrolavadora?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_water_point_available ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_water_point_available ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Compressor atente os distanciamento exigidos para um bom funcionamento?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_distancing_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_distancing_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
                   <td class="compressed-air-generation-room-cell">Acesso ao compressor é correto e seguro?</td>
-                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_compressor_ok ? 'SIM' : 'NÃO'}</td>
+                  <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_compressor_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
               </table>
 
@@ -652,6 +714,9 @@ export function reportTemplate(dto) {
                 ${dto?.attachments?.map(attachment => `
                   <div class="attachment-item">
                     <img src="${attachment}" />
+                    ${dto?.attachments_notes && dto?.attachments_notes[attachment]
+                      ? `<p class="attachment-note">${dto?.attachments_notes[attachment]}</p>`
+                      : ``}
                   </div>
                 `).join('')}
               </div>

@@ -8,6 +8,7 @@ import Splash from '../pages/splash';
 import AddReportOrderService from '../pages/reports/orderService';
 import DataEquipament from '../pages/reports/orderService/steps/dataEquipament';
 import DataCompany from '../pages/reports/orderService/steps/dataCompany';
+import AddCompany from '../pages/reports/orderService/steps/dataCompany/addCompany';
 import AddEquipament from '../pages/reports/orderService/steps/dataEquipament/addEquipament';
 import DataAttachments from '../pages/reports/orderService/steps/dataAttachments';
 import TakePicture from '../pages/reports/orderService/steps/dataAttachments/TakePicture';
@@ -67,6 +68,11 @@ export default function Routes() {
           name="DataCompany" 
           component={DataCompany} 
           options={{ title: 'Dados da Empresa' }}
+        />
+        <Stack.Screen 
+          name="AddCompany" 
+          component={AddCompany} 
+          options={{ title: 'Adicionar Empresa' }}
         />
         <Stack.Screen 
           name="DataEquipament" 

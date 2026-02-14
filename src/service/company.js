@@ -40,3 +40,20 @@ export async function getAllCompanies() {
         data: data,
     };
 }
+
+export async function createCompany(payload) {
+    const response = await api.post('/v1/company', payload);
+
+    if (!(response.status === 200 || response.status === 201)) {
+        return {
+            success: false,
+            message: response?.data?.message || 'Erro ao criar empresa',
+        };
+    }
+
+    return {
+        success: true,
+        message: response?.data?.message || 'Empresa criada com sucesso',
+        data: response?.data?.data,
+    };
+}

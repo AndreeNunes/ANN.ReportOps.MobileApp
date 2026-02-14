@@ -1,6 +1,7 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { getAllCompanies } from "../../../../../service/company";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { updateOrderService } from "../../../../../storage/order_service";
 import SearchWithAdd from "../../../../../components/SearchWithAdd";
 import styles from "./styles";
@@ -24,6 +25,12 @@ function DataCompany({ route, navigation }) {
   useEffect(() => {
     start();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      start();
+    }, [])
+  );
 
   const start = async () => {
     setIsLoading(true);
@@ -125,8 +132,8 @@ function DataCompany({ route, navigation }) {
       <SearchWithAdd
         value={search}
         onChangeText={searchCompanies}
-        onAdd={() => { }}
-        isAddButton={false}
+        onAdd={() => { navigation.navigate('AddCompany', { id, orderService }) }}
+        isAddButton={true}
       />
       <Text style={styles.resultsHint}>
         {companiesFiltered.length} resultado{companiesFiltered.length === 1 ? '' : 's'}

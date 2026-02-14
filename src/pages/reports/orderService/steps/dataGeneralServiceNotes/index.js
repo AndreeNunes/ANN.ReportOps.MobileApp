@@ -37,6 +37,7 @@ export default function DataGeneralServiceNotes({ route, navigation }) {
         "Manutenção corretiva",
         "Partida técnica",
         "Instalação e partida técnica",
+        "Visita técnica"
     ];
 
     const handleSave = async () => {
