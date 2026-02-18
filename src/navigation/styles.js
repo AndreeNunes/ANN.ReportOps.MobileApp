@@ -6,7 +6,7 @@ const tabBarStyle = {
   shadowOpacity: 0,
   shadowOffset: { width: 0, height: 0 },
   paddingTop: 12,
-  height: 100,
+  height: 78,
 }
 
 const tabBarLabelStyle = {

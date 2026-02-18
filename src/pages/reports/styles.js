@@ -3,8 +3,7 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
-    marginTop: 12,
+    backgroundColor: '#FFF'
   },
   addReportContainer: {
     flex: 1,
@@ -73,6 +72,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 1,
     minHeight: 110
+  },
+  cardSelected: {
+    borderColor: 'rgba(8, 36, 129, 0.98)',
+    backgroundColor: '#EEF2FF', /* indigo-50 */
   },
   cardIcon: {
     width: 36,
@@ -165,9 +168,13 @@ const styles = StyleSheet.create({
   syncChipTextNo: {
     color: '#7C2D12',
   },
+  syncChipBelow: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
   searchWithAddContainer: {
     paddingHorizontal: 16,
-    marginTop: 12,
+    marginTop: 8,
   },
   filtersRow: {
     flexDirection: 'row',
@@ -175,6 +182,54 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 4,
     marginTop: 12,
+  },
+  selectionBar: {
+    marginTop: 12,
+    marginHorizontal: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  selectionBarCount: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 14,
+    color: '#111827',
+  },
+  selectionBarCancel: {
+    height: 32,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: '#E5E7EB',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  selectionBarCancelText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    color: '#374151',
+  },
+  selectionBarDelete: {
+    height: 32,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: '#FEE2E2',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  selectionBarDeleteText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 12,
+    color: '#B91C1C',
   },
   filterChip: {
     paddingHorizontal: 12,

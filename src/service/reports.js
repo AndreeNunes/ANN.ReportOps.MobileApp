@@ -18,6 +18,27 @@ export const reportsService = {
             data: data,
         }
     },
+    bulkDelete: async (ids = []) => {
+        try {
+            const response = await api.delete('/v1/report/bulk', { data: { ids } });
+            
+            if (response.status !== 200) {
+                return {
+                    success: false,
+                    message: response.data?.message || 'Erro ao excluir relatórios no servidor',
+                };
+            }
+            return {
+                success: true,
+                data: response.data?.data || null,
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error?.response?.data?.message || 'Erro ao excluir relatórios no servidor',
+            };
+        }
+    },
     getReportIds: async () => {
         try {
             const response = await api.get('/v1/report/ids');

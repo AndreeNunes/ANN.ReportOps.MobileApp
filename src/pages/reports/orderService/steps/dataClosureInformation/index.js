@@ -19,18 +19,24 @@ export default function DataClosureInformation({ route, navigation }) {
     const [closingResponsibleTechnician, setClosingResponsibleTechnician] = useState(null);
     const [technicians, setTechnicians] = useState([]);
     const [technicianName, setTechnicianName] = useState('');
+    const [closingNotes, setClosingNotes] = useState(null);
 
     useEffect(() => {
         if (orderService) {
+            console.log('[x] - orderService', JSON.stringify(orderService, null, 2));
             setOS_number(orderService.OS_number);
             setClosingStartTime(orderService.closing_start_time ? new Date(orderService.closing_start_time) : null);
             setClosingEndTime(orderService.closing_end_time ? new Date(orderService.closing_end_time) : null);
             setClosingResponsible(orderService.closing_responsible);
             setClosingResponsibleTechnician(orderService.closing_technician_responsible);
+
             if (orderService.closing_technician_responsible) {
                 const parsed = parseTechniciansString(orderService.closing_technician_responsible);
+
                 setTechnicians(parsed);
             }
+
+            setClosingNotes(orderService.closing_notes);
         }
     }, [orderService]);
 
@@ -88,6 +94,7 @@ export default function DataClosureInformation({ route, navigation }) {
             closing_end_time: closingEndTime,
             closing_responsible: closingResponsible,
             closing_technician_responsible: closingResponsibleTechnician,
+            closing_notes: closingNotes,
         });
 
         await updateReport(id, {
@@ -180,13 +187,24 @@ export default function DataClosureInformation({ route, navigation }) {
                 <View style={{ height: 8 }} />
 
                 <TextInput
-                    placeholder="Digite o nome do técnico e toque em adicionar"
+                    placeholder="Adicione o nome do(s) técnico(s)"
                     value={technicianName}
                     onChangeText={setTechnicianName}
                     rightIcon={<Ionicons name="add-outline" size={18} color="#374151" />}
                     onRightIconPress={handleAddTechnician}
                     returnKeyType="done"
                     onSubmitEditing={handleAddTechnician}
+                />
+
+                <View style={{ height: 16 }} />
+
+                <TextInput
+                    label="Observações"
+                    placeholder="Digite as observações"
+                    value={closingNotes}
+                    onChangeText={setClosingNotes}
+                    multiline={true}
+                    numberOfLines={14}
                 />
 
                 <View style={{ height: 32 }} />

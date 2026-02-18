@@ -30,6 +30,9 @@ const Reports = ({ navigation }) => {
   const syncSheetRef = useRef(null);
   const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
   const [syncText, setSyncText] = useState('');
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const selectedCount = selectedIds.size;
 
   useEffect(() => {
     if (isFocused) {
@@ -82,10 +85,12 @@ const Reports = ({ navigation }) => {
 
   const handleSyncFromServer = async () => {
     const isConnected = await isConnectedNetwork();
+    
     if (!isConnected) {
       Alert.alert('Sem conexão', 'Conecte-se à internet para sincronizar.');
       return;
     }
+
     try {
       setSyncStatus('loading');
       setSyncText('Buscando IDs de relatórios...');
@@ -150,6 +155,88 @@ const Reports = ({ navigation }) => {
     navigation.navigate('ReportOrderService', { id: report.id, idReport: report.id_report });
   }
 
+  const enterSelectionModeWith = (id) => {
+    setIsSelectionMode(true);
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (isSelectionMode && selectedIds.size === 0) {
+      setIsSelectionMode(false);
+    }
+  }, [selectedIds, isSelectionMode]);
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setIsSelectionMode(false);
+  };
+
+  const confirmDeleteSelected = () => {
+    if (!selectedCount) return;
+    Alert.alert(
+      'Excluir selecionados',
+      `Tem certeza que deseja excluir ${selectedCount} relatório(s)? Esta ação não pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            const ids = Array.from(selectedIds);
+            try {
+              const isConnected = await isConnectedNetwork();
+              
+              if (!isConnected) {
+                Alert.alert('Sem conexão', 'Conecte-se à internet para excluir no servidor.');
+                return;
+              }
+
+              setIsLoading(true);
+              
+              const resp = await reportsService.bulkDelete(ids);
+              
+              if (!resp.success) {
+                setIsLoading(false);
+                Alert.alert('Erro', resp.message || 'Falha ao excluir no servidor.');
+                return;
+              }
+
+              for (const id of ids) {
+                try {
+                  await removeReport(id);
+                } catch {}
+              }
+
+              clearSelection();
+
+              await start();
+
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const CardType = ({ onPress }) => {
     return (
       <TouchableOpacity style={styles.cardTypeContainer} activeOpacity={0.8} onPress={onPress}>
@@ -210,14 +297,39 @@ const Reports = ({ navigation }) => {
           );
         })}
       </View>
+      
+      {isSelectionMode && (
+        <View style={styles.selectionBar}>
+          <Text style={styles.selectionBarCount}>
+            {selectedCount} selecionado{selectedCount > 1 ? 's' : ''}
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <TouchableOpacity onPress={clearSelection} activeOpacity={0.8} style={styles.selectionBarCancel}>
+              <Ionicons name="close-outline" size={18} color="#374151" />
+              <Text style={styles.selectionBarCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={confirmDeleteSelected} activeOpacity={0.8} style={styles.selectionBarDelete}>
+              <Ionicons name="trash-outline" size={18} color="#B91C1C" />
+              <Text style={styles.selectionBarDeleteText}>Excluir</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
-  ), [search, filterMode]);
+  ), [search, filterMode, isSelectionMode, selectedCount]);
 
   const renderItem = ({ item }) => {
+    const isSelected = selectedIds.has(item.id);
     return (
       <TouchableOpacity
-        style={styles.cardReport}
-        onPress={() => navigation.navigate('ReportOrderService', { id: item.id, idReport: item.id_report })}
+        style={[styles.cardReport, isSelected && styles.cardSelected]}
+        onPress={() => {
+          if (isSelectionMode) {
+            toggleSelect(item.id);
+          } else {
+            navigation.navigate('ReportOrderService', { id: item.id, idReport: item.id_report });
+          }
+        }}
         onLongPress={() => {
           setActionItem(item);
           actionSheetRef.current?.expand();
@@ -225,21 +337,15 @@ const Reports = ({ navigation }) => {
         activeOpacity={0.8}
       >
         <View style={styles.cardIcon}>
-          <Ionicons name="document-text-outline" size={18} color="rgba(8, 36, 129, 0.98)" />
+          {isSelected ? (
+            <Ionicons name="checkmark-circle" size={18} color="rgba(8, 36, 129, 0.98)" />
+          ) : (
+            <Ionicons name="document-text-outline" size={18} color="rgba(8, 36, 129, 0.98)" />
+          )}
         </View>
         <View style={styles.cardBody}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardTitle}>OS: {item?.OS_number || '-'}</Text>
-            <View style={[styles.syncChip, item?.sync ? styles.syncChipOk : styles.syncChipNo]}>
-              <Ionicons
-                name={item?.sync ? 'cloud-done-outline' : 'cloud-offline-outline'}
-                size={12}
-                color={item?.sync ? '#1E3A8A' : '#7C2D12'}
-              />
-              <Text style={[styles.syncChipText, item?.sync ? styles.syncChipTextOk : styles.syncChipTextNo]}>
-                {item?.sync ? 'Sincronizado' : 'Não sincronizado'}
-              </Text>
-            </View>
           </View>
           <View style={styles.cardInfoRow}>
             <Ionicons name="business-outline" size={14} color="#6B7280" />
@@ -253,6 +359,16 @@ const Reports = ({ navigation }) => {
           <View style={styles.cardFooterRow}>
             <Ionicons name="time-outline" size={14} color="#6B7280" />
             <Text style={styles.textReportSecondary}>{formatDateTime(item?.created_at)}</Text>
+          </View>
+          <View style={[styles.syncChip, item?.sync ? styles.syncChipOk : styles.syncChipNo, styles.syncChipBelow]}>
+            <Ionicons
+              name={item?.sync ? 'cloud-done-outline' : 'cloud-offline-outline'}
+              size={12}
+              color={item?.sync ? '#1E3A8A' : '#7C2D12'}
+            />
+            <Text style={[styles.syncChipText, item?.sync ? styles.syncChipTextOk : styles.syncChipTextNo]}>
+              {item?.sync ? 'Sincronizado' : 'Não sincronizado'}
+            </Text>
           </View>
         </View>
         <Ionicons style={styles.cardChevron} name="chevron-forward" size={22} color="rgba(8, 36, 129, 0.98)" />
@@ -300,7 +416,7 @@ const Reports = ({ navigation }) => {
           data={data}
           ListHeaderComponent={(
             <View style={{ marginBottom: 12 }}>
-              <View style={{ paddingHorizontal: 16 }}>
+              <View style={{ paddingHorizontal: 16, marginTop: 4 }}>
                 <InfoBanner
                   storageKey="@banner_reports_hint"
                   message="Pesquise pelo relatório ou crie um novo."
@@ -330,6 +446,21 @@ const Reports = ({ navigation }) => {
 
       <BottomSheetComponent bottomSheetRef={actionSheetRef} title="Ações">
         <View style={{ paddingHorizontal: 8 }}>
+          <TouchableOpacity
+            onPress={() => {
+              if (!actionItem) return;
+              enterSelectionModeWith(actionItem.id);
+              actionSheetRef.current?.close();
+            }}
+            activeOpacity={0.8}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}
+          >
+            <Ionicons name="checkmark-circle-outline" size={20} color="rgba(8, 36, 129, 0.98)" />
+            <Text style={{ marginLeft: 8, fontSize: 16 }}>Selecionar</Text>
+          </TouchableOpacity>
+
+          <View style={{ height: 8 }} />
+
           <TouchableOpacity
             onPress={async () => {
               if (!actionItem) return;
@@ -367,9 +498,25 @@ const Reports = ({ navigation }) => {
                     text: 'Excluir',
                     style: 'destructive',
                     onPress: async () => {
-                      await removeReport(actionItem.id);
-                      actionSheetRef.current?.close();
-                      start();
+                      try {
+                        const isConnected = await isConnectedNetwork();
+                        if (!isConnected) {
+                          Alert.alert('Sem conexão', 'Conecte-se à internet para excluir no servidor.');
+                          return;
+                        }
+                        setIsLoading(true);
+                        const resp = await reportsService.bulkDelete([actionItem.id]);
+                        if (!resp.success) {
+                          setIsLoading(false);
+                          Alert.alert('Erro', resp.message || 'Falha ao excluir no servidor.');
+                          return;
+                        }
+                        await removeReport(actionItem.id);
+                        actionSheetRef.current?.close();
+                        await start();
+                      } finally {
+                        setIsLoading(false);
+                      }
                     },
                   },
                 ]

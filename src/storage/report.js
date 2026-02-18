@@ -75,28 +75,37 @@ function mapRemoteToOrderService(remote) {
 
 export async function addReportFromServer(remoteReport) {
     const reports = await getReport();
-    
-    // Evita duplicação caso já exista pelo remote_id
-    const exists = reports.find(r => r.remote_id === remoteReport?.id);
-    if (exists) {
-        return exists;
-    }
+    const ordemService = remoteReport?.ordem_service || remoteReport;
+    const serverReport = remoteReport?.report;
 
-    const orderServiceDto = mapRemoteToOrderService(remoteReport);
+    const serverReportId = serverReport?.id || null;
+    const serverOrderServiceId = ordemService?.id || null;
+
+    const existsById = serverReportId ? reports.find(r => r.id === serverReportId) : null;
+    if (existsById) return existsById;
+
+    const existsByRemote = reports.find(r => r.remote_id && (r.remote_id === (serverReportId || serverOrderServiceId)));
+    
+    if (existsByRemote) return existsByRemote;
+
+    const orderServiceDto = mapRemoteToOrderService(ordemService);
     const idOrderService = await addOrderService(orderServiceDto);
 
-    const date = remoteReport?.created_at || getCurrentDate();
+    const date = serverReport?.created_at || ordemService?.created_at || getCurrentDate();
+
+    const localId = serverReportId || uuid.v4();
 
     const report = {
         ...REPORT,
-        id: uuid.v4(),
+        id: localId,
         id_report: idOrderService,
         created_at: date,
-        OS_number: remoteReport?.OS_number ?? '',
-        company_name: remoteReport?.company?.name ?? '',
-        equipament_name: remoteReport?.equipament?.name ?? '',
+        OS_number: ordemService?.OS_number ?? '',
+        company_name: ordemService?.company?.name ?? '',
+        equipament_name: ordemService?.equipament?.name ?? '',
         sync: true,
-        remote_id: remoteReport?.id,
+        // remote_id deve bater com os IDs retornados por /v1/report/ids (id do REPORT do servidor)
+        remote_id: serverReportId || serverOrderServiceId || null,
     };
 
     reports.push(report);

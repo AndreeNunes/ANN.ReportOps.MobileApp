@@ -59,6 +59,7 @@ export const ORDEM_SERVICE = {
     closing_end_time: null,
     closing_responsible: null,
     closing_technician_responsible: null,
+    closing_notes: null,
 
     attachments: [],
 

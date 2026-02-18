@@ -7,6 +7,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from './src/toast/toastConfig';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function App() {
@@ -14,7 +15,9 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'grey' }}>
       <StatusBar style="light" />
       <BottomSheetModalProvider>
-        <Routes />
+        <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
+          <Routes />
+        </SafeAreaView>
       </BottomSheetModalProvider>
       <Toast config={toastConfig} />
     </GestureHandlerRootView>

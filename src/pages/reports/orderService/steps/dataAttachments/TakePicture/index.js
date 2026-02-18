@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import TextInput from '../../../../../../components/TextInput'
 import Button from '../../../../../../components/Button'
 import { getOrderServiceById, updateOrderService } from '../../../../../../storage/order_service'
+import * as MediaLibrary from 'expo-media-library'
 
 export default function TakePicture({ navigation, route }) {
   const cameraRef = useRef(null)
@@ -65,6 +66,14 @@ export default function TakePicture({ navigation, route }) {
       quality: 0.8
     })
   
+    // Salvar na galeria do dispositivo
+    try {
+      const perm = await MediaLibrary.requestPermissionsAsync();
+      if (perm.granted) {
+        await MediaLibrary.saveToLibraryAsync(photo.uri);
+      }
+    } catch {}
+
     setCapturedUri(photo.uri)
   }
   

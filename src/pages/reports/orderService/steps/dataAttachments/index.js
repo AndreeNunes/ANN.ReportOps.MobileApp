@@ -1,4 +1,4 @@
-import { View, Text, Image, FlatList, Modal, TouchableOpacity } from "react-native";
+import { View, Text, Image, FlatList, Modal, TouchableOpacity, Alert } from "react-native";
 import Button from "../../../../../components/Button";
 import { useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,6 +7,7 @@ import { updateOrderService } from "../../../../../storage/order_service";
 import BottomSheetComponent from "../../../../../components/BottomSheet";
 import TextInput from "../../../../../components/TextInput";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
 
 export default function DataAttachments({ route, navigation }) {
   const id = route?.params?.id || null;
@@ -21,9 +22,10 @@ export default function DataAttachments({ route, navigation }) {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const bottomSheetRef = useRef(null);
   const [actionUri, setActionUri] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isObservationModalVisible, setIsObservationModalVisible] = useState(false);
+  const [observationText, setObservationText] = useState('');
+  const [observationUris, setObservationUris] = useState([]);
 
   const takePhoto = async (photoUri) => {
     if (!photoUri) return;
@@ -57,19 +59,43 @@ export default function DataAttachments({ route, navigation }) {
     }
   }, [orderService]);
 
+  const selectFromGallery = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert('Permissão necessária', 'Conceda acesso à galeria para selecionar fotos.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        allowsMultipleSelection: true,
+        selectionLimit: 0, // 0/undefined para sem limite no Android moderno; iOS >=14 respeita allowsMultipleSelection
+      });
+      if (result.canceled) return;
+      const assets = result.assets || [];
+      const uris = assets.map(a => a?.uri).filter(Boolean);
+      if (!uris.length) return;
+      const next = [...(photosRef.current || []), ...uris];
+      photosRef.current = next;
+      await updateOrderService(id, { attachments: next });
+      setPhotos(next);
+      // Abrir modal para adicionar observação (opcional) às fotos recém-selecionadas
+      openObservationForUris(uris);
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível selecionar imagens agora.');
+    }
+  };
+
   const openActions = (uri) => {
     if (!uri) return;
     setActionUri(uri);
-    setIsEditing(false);
-    setEditText(notesRef.current?.[uri] || '');
     bottomSheetRef.current?.expand?.();
   }
 
   const closeActions = () => {
     bottomSheetRef.current?.close?.();
     setActionUri(null);
-    setIsEditing(false);
-    setEditText('');
     setIsDeleting(false);
   }
 
@@ -108,27 +134,44 @@ export default function DataAttachments({ route, navigation }) {
     closeActions();
   }
 
-  const startEditObservation = () => {
-    setIsEditing(true);
-    setEditText(notesRef.current?.[actionUri] || '');
-  }
+  const openObservationForUris = (uris = []) => {
+    setObservationUris(uris);
+    // Se for edição de uma única foto (via actionUri), pré-carregar
+    if (uris.length === 1) {
+      setObservationText(notesRef.current?.[uris[0]] || '');
+    } else {
+      setObservationText('');
+    }
+    setIsObservationModalVisible(true);
+  };
 
-  const saveObservation = async () => {
-    if (!actionUri) return;
-    const text = (editText || '').trim();
+  const saveObservationModal = async () => {
+    if (!observationUris || observationUris.length === 0) {
+      setIsObservationModalVisible(false);
+      return;
+    }
+    const text = (observationText || '').trim();
     const next = { ...(notesRef.current || {}) };
     if (text.length === 0) {
-      delete next[actionUri];
+      // remover observação das URIs alvo
+      for (const u of observationUris) {
+        delete next[u];
+      }
     } else {
-      next[actionUri] = text;
+      // aplicar a mesma observação para todas URIs alvo
+      for (const u of observationUris) {
+        next[u] = text;
+      }
     }
     notesRef.current = next;
     await updateOrderService(id, { attachments_notes: next });
     setNotes(next);
-    setIsEditing(false);
-    // manter sheet aberto para novas ações, ou fechar:
+    setIsObservationModalVisible(false);
+    setObservationUris([]);
+    setObservationText('');
+    // Fechar ações se vier de lá
     closeActions();
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -162,6 +205,12 @@ export default function DataAttachments({ route, navigation }) {
         title="Tirar foto"
         onPress={() => navigation.navigate("TakePicture", { onPhotoTaken: takePhoto, id })}
         style={{ marginTop: 16 }}
+      />
+      <Button
+        title="Selecionar da galeria"
+        onPress={selectFromGallery}
+        style={{ marginTop: 8 }}
+        variant="secondary"
       />
 
       <Modal
@@ -222,57 +271,69 @@ export default function DataAttachments({ route, navigation }) {
         </View>
       </Modal>
 
-      <BottomSheetComponent bottomSheetRef={bottomSheetRef} title={isEditing ? 'Editar observação' : 'Opções'}>
+      <BottomSheetComponent bottomSheetRef={bottomSheetRef} title="Opções">
         <View style={{ paddingVertical: 8, gap: 12 }}>
-          {!isEditing && (
-            <>
-              <TouchableOpacity
-                onPress={deletePhoto}
-                disabled={isDeleting}
-                style={{ paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="trash-outline" size={20} color="#DC2626" />
-                <Text style={{ color: '#DC2626', fontSize: 16 }}>
-                  {isDeleting ? 'Excluindo foto...' : 'Excluir foto'}
-                </Text>
-              </TouchableOpacity>
-              {!!(actionUri && notes?.[actionUri]) && (
-                <TouchableOpacity
-                  onPress={deleteObservation}
-                  style={{ paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="trash-outline" size={20} color="#DC2626" />
-                  <Text style={{ color: '#DC2626', fontSize: 16 }}>Excluir observação</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                onPress={startEditObservation}
-                style={{ paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="create-outline" size={20} color="rgba(8, 36, 129, 0.98)" />
-                <Text style={{ color: '#082481', fontSize: 16 }}>Editar observação</Text>
-              </TouchableOpacity>
-            </>
+          <TouchableOpacity
+            onPress={deletePhoto}
+            disabled={isDeleting}
+            style={{ paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="trash-outline" size={20} color="#DC2626" />
+            <Text style={{ color: '#DC2626', fontSize: 16 }}>
+              {isDeleting ? 'Excluindo foto...' : 'Excluir foto'}
+            </Text>
+          </TouchableOpacity>
+          {!!(actionUri && notes?.[actionUri]) && (
+            <TouchableOpacity
+              onPress={deleteObservation}
+              style={{ paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="trash-outline" size={20} color="#DC2626" />
+              <Text style={{ color: '#DC2626', fontSize: 16 }}>Excluir observação</Text>
+            </TouchableOpacity>
           )}
-          {isEditing && (
-            <>
-              <TextInput
-                label=""
-                placeholder="Digite a observação"
-                value={editText}
-                onChangeText={setEditText}
-                multiline={true}
-                numberOfLines={6}
-              />
-              <View style={{ height: 12 }} />
-              <Button title="Salvar" onPress={saveObservation} />
-            </>
-          )}
+          <TouchableOpacity
+            onPress={() => {
+              if (!actionUri) return;
+              openObservationForUris([actionUri]);
+            }}
+            style={{ paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="create-outline" size={20} color="rgba(8, 36, 129, 0.98)" />
+            <Text style={{ color: '#082481', fontSize: 16 }}>Editar observação</Text>
+          </TouchableOpacity>
         </View>
       </BottomSheetComponent>
+
+      <Modal
+        visible={isObservationModalVisible}
+        animationType="slide"
+        onRequestClose={() => setIsObservationModalVisible(false)}
+      >
+        <SafeAreaView style={{ flex: 1, padding: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontFamily: 'Inter-SemiBold' }}>
+              {observationUris.length > 1 ? 'Observação para fotos selecionadas' : 'Observação da foto'}
+            </Text>
+            <TouchableOpacity onPress={() => setIsObservationModalVisible(false)} activeOpacity={0.8}>
+              <Ionicons name="close-outline" size={28} color="#111827" />
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            label=""
+            placeholder="Digite a observação (opcional)"
+            value={observationText}
+            onChangeText={setObservationText}
+            multiline={true}
+            numberOfLines={8}
+          />
+          <View style={{ flex: 1 }} />
+          <Button title="Salvar" onPress={saveObservationModal} />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }

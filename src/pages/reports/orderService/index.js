@@ -10,7 +10,7 @@ import { isConnectedNetwork } from "../../../util/network";
 import { reportsService } from "../../../service/reports";
 import Toast from "react-native-toast-message";
 import { reportTemplate } from "../../../../templates/reportTemplate";
-import { formatDate, formatDateTime } from "../../../util/date";
+import { formatDate, formatDateTime, formatSendRequestDate } from "../../../util/date";
 import { Asset, useAssets } from 'expo-asset';
 import * as FileSystem from 'expo-file-system/legacy';
 import InfoBanner from "../../../components/InfoBanner";
@@ -28,7 +28,7 @@ export default function AddReportOrderService({ navigation, route }) {
 
   const orderService = useRef({});
   const loadingSheetRef = useRef(null);
-  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [syncStatus, setSyncStatus] = useState('idle');
 
   useFocusEffect(
     useCallback(() => {
@@ -269,9 +269,9 @@ export default function AddReportOrderService({ navigation, route }) {
       }, wait);
     };
 
-    console.log('[x] - response', response);
 
     if (response.success) {
+
       const requestReference = {
         id: idReport,
         order_service: {
@@ -283,6 +283,14 @@ export default function AddReportOrderService({ navigation, route }) {
 
       if (response.is_exists) {
         console.log('[x] - is_exists', response.is_exists);
+
+        if (orderService.current?.closing_start_time) {
+          orderService.current.closing_start_time = formatSendRequestDate(orderService.current.closing_start_time);
+        }
+
+        if (orderService.current?.closing_end_time) {
+          orderService.current.closing_end_time = formatSendRequestDate(orderService.current.closing_end_time);
+        }
 
         const requestReference = {
           id: idReport,

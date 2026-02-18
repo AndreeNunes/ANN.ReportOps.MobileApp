@@ -336,6 +336,10 @@ export function reportTemplate(dto) {
               border-top: none;
             }
             
+            .closing-notes-text {
+              color:rgb(151, 21, 21);
+            }
+            
             /* Text colors for statuses */
             .text-yes, .text-good { color: #16a34a; }       /* verde */
             .text-no, .text-aggressive { color: #dc2626; }  /* vermelho */
@@ -594,7 +598,7 @@ export function reportTemplate(dto) {
                 ) : ``}
                 
                 <tr class="compressed-air-generation-room-row">
-                  <td class="compressed-air-generation-room-cell">Temperatura e ventilação da sala são adequadas?</td>
+                  <td class="compressed-air-generation-room-cell">Temperatura e ventilação da sala são adequadas? (A temperatura deve ser até 35°C)</td>
                   <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_room_temp_vent_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
               </table>
@@ -656,7 +660,7 @@ export function reportTemplate(dto) {
                   <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_water_point_available ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
-                  <td class="compressed-air-generation-room-cell">Compressor atente os distanciamento exigidos para um bom funcionamento?</td>
+                  <td class="compressed-air-generation-room-cell">Compressor atente os distanciamento exigidos para um bom funcionamento? (O distanciamento ideal: 1,5mt de cada lado)</td>
                   <td class="compressed-air-generation-room-cell-2"> ${dto?.cr_distancing_ok ? '<span class="text-yes">SIM</span>' : '<span class="text-no">NÃO</span>'}</td>
                 </tr>
                 <tr class="compressed-air-generation-room-row">
@@ -693,6 +697,14 @@ export function reportTemplate(dto) {
                 <tr class="closure-information-row">
                   <td class="closure-information-cell-2">Nome do responsável: ${dto?.closing_responsible ?? 'N/A'}</td>
                 </tr>
+
+                ${dto?.closing_notes ? (
+                  `
+                    <tr class="closure-information-row">
+                      <td class="closure-information-cell-2 closing-notes-text">Observações: ${ dto?.closing_notes }</td>
+                    </tr>
+                  `
+                ) : ``}
               </table>
               
               <div class="signature">

@@ -4,7 +4,7 @@ import TextInput from "../../components/TextInput";
 import styles from "./styles";
 import Button from "../../components/Button";
 import { authService } from "../../service/auth";
-import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 const Auth = ({ navigation }) => {
@@ -48,7 +48,6 @@ const Auth = ({ navigation }) => {
         >
           <View style={styles.header}>
             <Image source={require('../../../assets/icon.png')} style={styles.logo} />
-            <Text style={styles.appTitle}>App Reports</Text>
           </View>
 
           <View style={styles.card}>
@@ -93,13 +92,17 @@ const Auth = ({ navigation }) => {
               style={styles.button}
             />
           
-          <View style={{ height: 12 }} />
+          <View style={styles.orContainer}>
+            <View style={styles.orLine} />
+            <Text style={styles.orText}>OU</Text>
+            <View style={styles.orLine} />
+          </View>
           <TouchableOpacity
             onPress={() => navigation.navigate('RegisterStepCode')}
             activeOpacity={0.7}
-            style={{ alignItems: 'center' }}
+            style={styles.secondaryButton}
           >
-            <Text style={{ color: '#0c2168', fontFamily: 'Inter-SemiBold' }}>
+            <Text style={styles.secondaryButtonText}>
               Criar conta
             </Text>
           </TouchableOpacity>

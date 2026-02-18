@@ -42,9 +42,7 @@ export async function addOrderService(dto) {
     const orderService = await getOrderService();
     const id = uuid.v4();
 
-    const nameUser = await AsyncStorage.getItem('@auth_user_name');
-    
-    orderService.push({ ...dto, id: id, closing_technician_responsible: nameUser });
+    orderService.push({ ...dto, id: id });
 
     await saveOrderServiceList(orderService);
 
