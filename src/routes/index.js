@@ -1,7 +1,6 @@
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import Auth from '../pages/auth';
 import BottomTabs from '../navigation';
 import Splash from '../pages/splash';
@@ -22,6 +21,7 @@ import Signature from '../pages/reports/orderService/Signature';
 import RegisterStepCode from '../pages/auth/register/StepCode';
 import RegisterStepIdentity from '../pages/auth/register/StepIdentity';
 import RegisterStepCredentials from '../pages/auth/register/StepCredentials';
+import Reports from '../pages/reports';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +58,11 @@ export default function Routes() {
           name="Main" 
           component={BottomTabs} 
           options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Reports" 
+          component={Reports} 
+          options={{ title: 'Relatórios' }}
         />
         <Stack.Screen 
           name="ReportOrderService" 

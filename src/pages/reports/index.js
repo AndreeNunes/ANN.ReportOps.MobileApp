@@ -1,21 +1,20 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, SectionList, Text, TouchableOpacity, View, Alert } from 'react-native';
 import styles from './styles';
 import BottomSheetComponent from '../../components/BottomSheet';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
-import { addReport, getReport, addReportFromServer } from '../../storage/report';
+import { addReport, getReport } from '../../storage/report';
 import { duplicateReport, removeReport } from '../../storage/report';
 import { formatDateTime } from '../../util/date';
 import SearchWithAdd from '../../components/SearchWithAdd';
 import InfoBanner from '../../components/InfoBanner';
-import LottieView from 'lottie-react-native';
 import { isConnectedNetwork } from '../../util/network';
 import { reportsService } from '../../service/reports';
-import { getFirstLoginSyncPrompted, setFirstLoginSyncPrompted } from '../../storage/sync_prefs';
+import { updateOrderService } from '../../storage/order_service';
+import { updateReport } from '../../storage/report';
 
-const Reports = ({ navigation }) => { 
+const Reports = ({ navigation, route }) => { 
   const [reports, setReports] = useState([]);
   const sheetRef = useRef(null);
   const isFocused = useIsFocused();
@@ -26,52 +25,23 @@ const Reports = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [actionItem, setActionItem] = useState(null);
   const actionSheetRef = useRef(null);
-  const [filterMode, setFilterMode] = useState('all');
-  const syncSheetRef = useRef(null);
-  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
-  const [syncText, setSyncText] = useState('');
+  const [filterMode, setFilterMode] = useState('all'); // 'all' | 'equipament' | 'os'
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const selectedCount = selectedIds.size;
+  const [routeCompany, setRouteCompany] = useState(null);
 
   useEffect(() => {
     if (isFocused) {
       start();
-      (async () => {
-        const prompted = await getFirstLoginSyncPrompted();
-        if (!prompted) {
-          Alert.alert(
-            'Sincronizar agora?',
-            'Deseja sincronizar seus relatórios do servidor neste dispositivo?',
-            [
-              { text: 'Agora não', style: 'cancel', onPress: async () => {
-                await setFirstLoginSyncPrompted(true);
-              }},
-              { text: 'Sim, sincronizar', onPress: async () => {
-                await setFirstLoginSyncPrompted(true);
-                handleSyncFromServer();
-              }},
-            ]
-          );
-        }
-      })();
+      // Aplicar filtro vindo da rota (Home)
+      const companyFromRoute = route?.params?.filterCompany || null;
+      if (companyFromRoute) {
+        setRouteCompany(companyFromRoute);
+      }
     }
     
-  }, [isFocused]);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={handleSyncFromServer}
-          style={{ paddingRight: 12, paddingVertical: 6 }}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="sync-outline" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+  }, [isFocused, route?.params]);
 
   const start = async () => {
     setIsLoading(true);
@@ -83,67 +53,6 @@ const Reports = ({ navigation }) => {
     setIsLoading(false);
   }
 
-  const handleSyncFromServer = async () => {
-    const isConnected = await isConnectedNetwork();
-    
-    if (!isConnected) {
-      Alert.alert('Sem conexão', 'Conecte-se à internet para sincronizar.');
-      return;
-    }
-
-    try {
-      setSyncStatus('loading');
-      setSyncText('Buscando IDs de relatórios...');
-      syncSheetRef.current?.expand();
-
-      const idsResp = await reportsService.getReportIds();
-      if (!idsResp.success) {
-        throw new Error(idsResp.message || 'Falha ao buscar IDs');
-      }
-
-      const serverIds = Array.isArray(idsResp.data) ? idsResp.data : [];
-      const local = await getReport();
-      const localSyncedIds = new Set(
-        (local || [])
-          .filter(r => r?.sync && r?.remote_id)
-          .map(r => r.remote_id)
-      );
-
-      const idsToFetch = serverIds.filter(id => !localSyncedIds.has(id));
-
-      if (!idsToFetch.length) {
-        setSyncText('Nenhum novo relatório para importar.');
-        setSyncStatus('success');
-        setTimeout(() => {
-          syncSheetRef.current?.close();
-        }, 1200);
-        return;
-      }
-
-      setSyncText(`Baixando ${idsToFetch.length} relatório(s)...`);
-      const refsResp = await reportsService.getReportsByIds(idsToFetch);
-      if (!refsResp.success) {
-        throw new Error(refsResp.message || 'Falha ao buscar relatórios por IDs');
-      }
-
-      const items = Array.isArray(refsResp.data) ? refsResp.data : [];
-      let imported = 0;
-      for (const item of items) {
-        await addReportFromServer(item);
-        imported += 1;
-      }
-
-      setSyncText(`Importados ${imported} relatório(s) com sucesso.`);
-      setSyncStatus('success');
-      await start();
-      setTimeout(() => {
-        syncSheetRef.current?.close();
-      }, 1200);
-    } catch (e) {
-      setSyncText(e?.message || 'Erro durante a sincronização.');
-      setSyncStatus('error');
-    }
-  };
 
   const goToReportOrderService = async () => {
     console.log("[x] - Adicionando relatório...")
@@ -151,8 +60,16 @@ const Reports = ({ navigation }) => {
     const report = await addReport();
 
     sheetRef.current?.close();
-    
-    navigation.navigate('ReportOrderService', { id: report.id, idReport: report.id_report });
+    // Se vier da Home com uma empresa selecionada, preenche automaticamente
+    if (routeCompany?.id) {
+      try {
+        // Atualiza OS com a empresa
+        await updateOrderService(report.id_report, { company: routeCompany });
+        // Atualiza o report com o nome da empresa
+        await updateReport(report.id_report, { company_name: routeCompany.name, sync: false });
+      } catch {}
+    }
+    navigation.navigate('ReportOrderService', { id: report.id, idReport: report.id_report, company: routeCompany || null });
   }
 
   const enterSelectionModeWith = (id) => {
@@ -271,8 +188,8 @@ const Reports = ({ navigation }) => {
       <View style={styles.filtersRow}>
         {[
           { key: 'all', label: 'Todos' },
-          { key: 'company', label: 'Empresa' },
           { key: 'equipament', label: 'Equipamento' },
+          { key: 'os', label: 'Ordem de Serviço' },
         ].map(opt => {
           const isActive = filterMode === opt.key;
           return (
@@ -388,16 +305,46 @@ const Reports = ({ navigation }) => {
   const normalizedSearch = search?.trim().toLowerCase() ?? '';
 
   const data = React.useMemo(() => {
-    if (!normalizedSearch) return reports;
-    
-    return reports.filter((r) => {
-      const company = (r?.company_name ?? '').toLowerCase();
+    // Primeiro filtra por empresa vinda da Home, se existir
+    const base = routeCompany ? reports.filter(r => (r?.company_name || '') === (routeCompany?.name || '')) : reports;
+    if (!normalizedSearch) return base;
+    return base.filter((r) => {
       const equip = (r?.equipament_name ?? '').toLowerCase();
-      if (filterMode === 'company') return company.includes(normalizedSearch);
+      const os = String(r?.OS_number ?? '').toLowerCase();
       if (filterMode === 'equipament') return equip.includes(normalizedSearch);
-      return company.includes(normalizedSearch) || equip.includes(normalizedSearch);
+      if (filterMode === 'os') return os.includes(normalizedSearch);
+      return equip.includes(normalizedSearch) || os.includes(normalizedSearch);
     });
-  }, [reports, normalizedSearch, filterMode]);
+  }, [reports, normalizedSearch, filterMode, routeCompany]);
+
+  const sections = useMemo(() => {
+    const grouped = data.reduce((acc, item) => {
+      const createdAt = item?.created_at ? new Date(item.created_at) : null;
+      const isValidDate = createdAt && !Number.isNaN(createdAt.getTime());
+      const key = isValidDate
+        ? createdAt.toISOString().slice(0, 10)
+        : 'sem-data';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(item);
+      return acc;
+    }, {});
+
+    return Object.entries(grouped)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([key, items]) => {
+        const title = key === 'sem-data'
+          ? 'Sem data'
+          : new Date(`${key}T00:00:00`).toLocaleDateString('pt-BR');
+        return {
+          title,
+          data: items.sort((x, y) => {
+            const dx = new Date(x?.created_at || 0).getTime();
+            const dy = new Date(y?.created_at || 0).getTime();
+            return dy - dx;
+          }),
+        };
+      });
+  }, [data]);
 
   const onRefresh = async () => {
     try {
@@ -411,9 +358,9 @@ const Reports = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {!isLoading && !error && (
-        <FlatList
+        <SectionList
+          sections={sections}
           keyExtractor={(item) => item.id}
-          data={data}
           ListHeaderComponent={(
             <View style={{ marginBottom: 12 }}>
               <View style={{ paddingHorizontal: 16, marginTop: 4 }}>
@@ -426,6 +373,16 @@ const Reports = ({ navigation }) => {
             </View>
           )}
           renderItem={renderItem}
+          renderSectionHeader={({ section: { title } }) => (
+            <View style={{ paddingLeft: 20, marginBottom: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="calendar-outline" size={14} color="#374151" />
+                <Text style={{ fontFamily: 'Inter-Bold', color: '#374151', fontSize: 13 }}>
+                  {title}
+                </Text>
+              </View>
+            </View>
+          )}
           ListEmptyComponent={<EmptyComponent />}
           refreshing={refreshing}
           onRefresh={onRefresh}
@@ -531,44 +488,6 @@ const Reports = ({ navigation }) => {
         </View>
       </BottomSheetComponent>
 
-      <BottomSheetComponent
-        bottomSheetRef={syncSheetRef}
-        title={syncStatus === 'loading' ? 'Sincronizando' : syncStatus === 'success' ? 'Concluído' : 'Falhou'}
-      >
-        <View style={{ alignItems: 'center', paddingVertical: 8 }}>
-          {syncStatus === 'loading' && (
-            <LottieView
-              source={require('../../../assets/animations/loading_sync.json')}
-              autoPlay
-              loop
-              style={{ width: 140, height: 140 }}
-            />
-          )}
-          {syncStatus === 'success' && (
-            <LottieView
-              source={require('../../../assets/animations/success_sync.json')}
-              autoPlay
-              loop={false}
-              style={{ width: 140, height: 140 }}
-            />
-          )}
-          {syncStatus === 'error' && (
-            <LottieView
-              source={require('../../../assets/animations/error_sync.json')}
-              autoPlay
-              loop={false}
-              style={{ width: 140, height: 140 }}
-            />
-          )}
-          <Text style={{ marginTop: 8, fontFamily: 'Inter-Regular', color: '#333' }}>
-            {syncStatus === 'loading'
-              ? (syncText || 'Sincronizando...')
-              : syncStatus === 'success'
-              ? (syncText || 'Dados sincronizados com sucesso!')
-              : (syncText || 'Ocorreu um erro na sincronização.')}
-          </Text>
-        </View>
-      </BottomSheetComponent>
     </View>
   );
 };

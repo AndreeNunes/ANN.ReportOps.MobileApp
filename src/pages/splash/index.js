@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { authStorage } from "../../storage/auth";
 import LottieViewComponent from "../../components/LottieViewComponent";
+import { getAllCompanies } from "../../service/company";
 
 export default function Splash({ navigation }) {
   const [fontLoaded] = useFonts({
@@ -19,9 +20,12 @@ export default function Splash({ navigation }) {
   }, [fontLoaded]);
 
   const init = async () => {
+    
     const token = await authStorage.getToken();
 
-    if (token) { 
+    if (token) {
+      await getAllCompanies();
+      
       navigation.navigate('Main');
     } else {
       navigation.navigate('Auth');

@@ -1,6 +1,6 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { getAllCompanies } from "../../../../../service/company";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { updateOrderService } from "../../../../../storage/order_service";
 import SearchWithAdd from "../../../../../components/SearchWithAdd";
@@ -21,10 +21,6 @@ function DataCompany({ route, navigation }) {
   const [companiesFiltered, setCompaniesFiltered] = useState([]);
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    start();
-  }, []);
 
   useFocusEffect(
     useCallback(() => {

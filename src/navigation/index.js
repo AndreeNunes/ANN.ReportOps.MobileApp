@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import Reports from '../pages/reports';
+import Home from '../pages/home';
 import Dashboard from '../pages/dashboard';
 import Profile from '../pages/profile';
 import { headerStyle, headerTitleStyle, tabBarLabelStyle, tabBarStyle } from './styles';
@@ -11,8 +11,8 @@ const Tab = createBottomTabNavigator();
 export default function BottomTabs() {
   const getIconName = (routeName, focused) => {
     switch (routeName) {
-      case 'Reports':
-        return focused ? 'document-text' : 'document-text-outline';
+      case 'Home':
+        return focused ? 'home' : 'home-outline';
       case 'Dashboard':
         return focused ? 'stats-chart' : 'stats-chart-outline';
       case 'Profile':
@@ -42,9 +42,9 @@ export default function BottomTabs() {
       })}
     >
       <Tab.Screen 
-        name="Reports" 
-        options={{ title: 'Relatórios' }}
-        component={Reports}
+        name="Home" 
+        options={{ title: 'Início' }}
+        component={Home}
       />
       <Tab.Screen 
         name="Dashboard" 

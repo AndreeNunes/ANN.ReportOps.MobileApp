@@ -4,6 +4,7 @@ import TextInput from "../../components/TextInput";
 import styles from "./styles";
 import Button from "../../components/Button";
 import { authService } from "../../service/auth";
+import { getAllCompanies } from "../../service/company";
 import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -21,17 +22,20 @@ const Auth = ({ navigation }) => {
       Toast.show({ text1: 'Atenção', text2: 'Informe sua senha.', type: 'warning' });
       return;
     }
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const turn = await authService.login(email, password);
+      const turn = await authService.login(email, password);
 
-    setLoading(false);
-
-    if (turn.success) {
-      Toast.show({ text1: 'Bem-vindo!', type: 'success' });
-      navigation.navigate('Main');
-    } else {
-      Toast.show({ text1: 'Erro ao entrar', text2: turn?.message || 'Verifique suas credenciais.', type: 'error' });
+      if (turn.success) {
+        await getAllCompanies();
+        
+        navigation.navigate('Main');
+      } else {
+        Toast.show({ text1: 'Erro ao entrar', text2: turn?.message || 'Verifique suas credenciais.', type: 'error' });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
