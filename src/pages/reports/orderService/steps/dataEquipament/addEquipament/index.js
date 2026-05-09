@@ -21,7 +21,6 @@ export default function AddEquipament({ route, navigation }) {
   const [eqIhmModel, setEqIhmModel] = useState(equipament?.ihm_model ?? null);
   const [eqSupplyVoltage, setEqSupplyVoltage] = useState(equipament?.supply_voltage ?? null);
   const [eqIntakeSolenoidVoltage, setEqIntakeSolenoidVoltage] = useState(equipament?.intake_solenoid_voltage ?? null);
-  const [eqCurrentHourMeter, setEqCurrentHourMeter] = useState(equipament?.current_hour_meter ?? null);
   const [eqSerialNumber, setEqSerialNumber] = useState(equipament?.serial_number ?? null);
   const [eqInverterSoftstarterBrandModel, setEqInverterSoftstarterBrandModel] = useState(equipament?.inverter_softstarter_brand_model ?? null);
   const [eqWorkingPressure, setEqWorkingPressure] = useState(equipament?.working_pressure ?? null);
@@ -53,7 +52,6 @@ export default function AddEquipament({ route, navigation }) {
         ihm_model: eqIhmModel,
         supply_voltage: eqSupplyVoltage,
         intake_solenoid_voltage: eqIntakeSolenoidVoltage,
-        current_hour_meter: eqCurrentHourMeter,
         serial_number: eqSerialNumber,
         inverter_softstarter_brand_model: eqInverterSoftstarterBrandModel,
         working_pressure: eqWorkingPressure,
@@ -107,22 +105,6 @@ export default function AddEquipament({ route, navigation }) {
         />
 
         <View style={{ height: 16 }} />
-
-        <MaskedInput
-          label="Horímetro atual"
-          placeholder="Digite o horímetro atual"
-          useNumberMask={true}
-          numberOptions={{
-            prefix: [],
-            delimiter: '.',
-            separator: ',',
-            precision: 0,
-          }}
-          value={eqCurrentHourMeter}
-          onChangeText={setEqCurrentHourMeter}
-        />
-
-        <View style={{ height: 32 }} />
 
         <TextInput
           label="Equipamento"

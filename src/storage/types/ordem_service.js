@@ -5,7 +5,9 @@ export const ORDEM_SERVICE = {
     company: null,
 
     equipament: null,
-  
+
+    current_hour_meter: null,
+
     cga_reason_visit: null,
     cga_reported_defect: null,
     cga_solution_applied: null,
