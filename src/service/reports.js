@@ -61,9 +61,14 @@ export const reportsService = {
             };
         }
     },
-    getReportsByIds: async (ids = []) => {
+    getSyncReports: async ({ page = 1, limit = 10 }) => {
         try {
-            const response = await api.post('/v1/report/references/ids', { ids });
+            const request = {
+                page,
+                limit,
+            }
+
+            const response = await api.post('/v1/report/get-sync', request);
             
             if (response.status !== 200) {
                 return {

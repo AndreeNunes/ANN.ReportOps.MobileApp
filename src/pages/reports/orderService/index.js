@@ -167,8 +167,6 @@ export default function AddReportOrderService({ navigation, route }) {
       'cga_parts_to_replace',
     ];
 
-    console.log('cga_solution_applied', orderService.current.cga_solution_applied);
-
     topicFields.forEach((field) => {
       orderService.current[field] = toTopicsHtml(orderService.current[field]);
     });
@@ -233,8 +231,6 @@ export default function AddReportOrderService({ navigation, route }) {
   }
 
   const handleSync = async () => {
-    console.log("[x] - 2 Sincronizando...");
-
     const startAt = Date.now();
 
     setSyncStatus('loading');
@@ -282,8 +278,6 @@ export default function AddReportOrderService({ navigation, route }) {
       }
 
       if (response.is_exists) {
-        console.log('[x] - is_exists', response.is_exists);
-
         if (orderService.current?.closing_start_time) {
           orderService.current.closing_start_time = formatSendRequestDate(orderService.current.closing_start_time);
         }

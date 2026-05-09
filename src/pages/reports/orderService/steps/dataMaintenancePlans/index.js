@@ -104,7 +104,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite a quilometragem"
           value={mpOilName}
           onChangeText={(v) => setMpOil([v || '', mpOilDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -126,7 +132,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpAirOilSeparatorElementValue}
           onChangeText={(v) => setMpAirOilSeparatorElement([v || '', mpAirOilSeparatorElementDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -148,7 +160,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpPrimaryAirFilterValue}
           onChangeText={(v) => setMpPrimaryAirFilter([v || '', mpPrimaryAirFilterDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -170,7 +188,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpSecondaryAirFilterValue}
           onChangeText={(v) => setMpSecondaryAirFilter([v || '', mpSecondaryAirFilterDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -192,7 +216,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpStandardAirFilterValue}
           onChangeText={(v) => setMpStandardAirFilter([v || '', mpStandardAirFilterDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -214,7 +244,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpOilFilterValue}
           onChangeText={(v) => setMpOilFilter([v || '', mpOilFilterDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -236,7 +272,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpEngineLubricantValue}
           onChangeText={(v) => setMpEngineLubricant([v || '', mpEngineLubricantDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -258,7 +300,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpCoalescingElementValue}
           onChangeText={(v) => setMpCoalescingElement([v || '', mpCoalescingElementDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 
@@ -280,18 +328,13 @@ export default function DataMaintenancePlans({ route, navigation }) {
           placeholder="Digite o valor"
           value={mpCompressorElementRevisionValue}
           onChangeText={(v) => setMpCompressorElementRevision([v || '', mpCompressorElementRevisionDate || ''].join('&'))}
-          mask={(v) => Array(String(v ?? '').length).fill(/[0-9.,;\/-]/)}
-          keyboardType="number-pad"
-        />
-
-        <View style={{ height: 16 }} />
-
-        <MaskedInput
-          label=""
-          placeholder="Digite a data"
-          value={mpCompressorElementRevisionDate}
-          onChangeText={(v) => setMpCompressorElementRevision([mpCompressorElementRevisionValue || '', v || ''].join('&'))}
-          pattern={"##/##/####"}
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
           keyboardType="number-pad"
         />
 

@@ -52,6 +52,18 @@ export async function addOrderService(dto) {
   }
 }
 
+export async function addOrderServiceFromServer(dto) {
+  try {
+    const orderService = await getOrderService();
+
+    orderService.push(dto);
+
+    await saveOrderServiceList(orderService);
+  } catch (e) {
+    console.error("Erro ao adicionar ordem de serviço:", e);
+  }
+}
+
 export async function updateOrderService(id, partialDto) {
   const orderService = await getOrderService();
 

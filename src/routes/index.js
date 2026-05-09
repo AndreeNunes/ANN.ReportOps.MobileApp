@@ -22,6 +22,7 @@ import RegisterStepCode from '../pages/auth/register/StepCode';
 import RegisterStepIdentity from '../pages/auth/register/StepIdentity';
 import RegisterStepCredentials from '../pages/auth/register/StepCredentials';
 import Reports from '../pages/reports';
+import { headerStyle, headerTitleStyle } from '../navigation/styles';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,77 +63,77 @@ export default function Routes() {
         <Stack.Screen 
           name="Reports" 
           component={Reports} 
-          options={{ title: 'Relatórios' }}
+          options={{ title: 'Relatórios', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="ReportOrderService" 
           component={AddReportOrderService} 
-          options={{ title: 'Ordem de Serviço' }}
+          options={{ title: 'Ordem de Serviço', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataCompany" 
           component={DataCompany} 
-          options={{ title: 'Dados da Empresa' }}
+          options={{ title: 'Dados da Empresa', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="AddCompany" 
           component={AddCompany} 
-          options={{ title: 'Adicionar Empresa' }}
+          options={{ title: 'Adicionar Empresa', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataEquipament" 
           component={DataEquipament} 
-          options={{ title: 'Dados do Equipamento' }}
+          options={{ title: 'Dados do Equipamento', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="AddEquipament" 
           component={AddEquipament} 
-          options={{ title: 'Adicionar Equipamento' }}
+          options={{ title: 'Adicionar Equipamento', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataAttachments" 
           component={DataAttachments} 
-          options={{ title: 'Anexos' }}
+          options={{ title: 'Anexos', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="TakePicture" 
           component={TakePicture} 
-          options={{ title: 'Tirar foto' }}
+          options={{ title: 'Tirar foto', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataGeneralServiceNotes" 
           component={DataGeneralServiceNotes} 
-          options={{ title: 'Considerações gerais de atendimento' }}
+          options={{ title: 'Considerações gerais de atendimento', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataMaintenancePlans" 
           component={DataMaintenancePlans} 
-          options={{ title: 'Planos de manutenção' }}
+          options={{ title: 'Planos de manutenção', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataRequiredReadings" 
           component={DataRequiredReadings} 
-          options={{ title: 'Leituras obrigatórias' }}
+          options={{ title: 'Leituras obrigatórias', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataCompressedAirGenerationRoom" 
           component={DataCompressedAirGenerationRoom} 
-          options={{ title: 'Compressor de ar comprimido' }}
+          options={{ title: 'Compressor de ar comprimido', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="DataClosureInformation" 
           component={DataClosureInformation} 
-          options={{ title: 'Informações de encerramento' }}
+          options={{ title: 'Informações de encerramento', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="PreviewPDF" 
           component={PreviewPDF} 
-          options={{ title: 'Visualizar PDF' }}
+          options={{ title: 'Visualizar PDF', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
         <Stack.Screen 
           name="Signature" 
           component={Signature} 
-          options={{ title: 'Assinatura' }}
+          options={{ title: 'Assinatura', headerStyle: headerStyle, headerTitleStyle: headerTitleStyle, headerTintColor: '#fff'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { addReport, getReport } from '../../storage/report';
 import { duplicateReport, removeReport } from '../../storage/report';
-import { formatDateTime } from '../../util/date';
+import { formatDateTime, formatIsoDateTimeString } from '../../util/date';
 import SearchWithAdd from '../../components/SearchWithAdd';
 import InfoBanner from '../../components/InfoBanner';
 import { isConnectedNetwork } from '../../util/network';
@@ -275,7 +275,7 @@ const Reports = ({ navigation, route }) => {
           </View>
           <View style={styles.cardFooterRow}>
             <Ionicons name="time-outline" size={14} color="#6B7280" />
-            <Text style={styles.textReportSecondary}>{formatDateTime(item?.created_at)}</Text>
+            <Text style={styles.textReportSecondary}>{formatIsoDateTimeString(item?.created_at)}</Text>
           </View>
           <View style={[styles.syncChip, item?.sync ? styles.syncChipOk : styles.syncChipNo, styles.syncChipBelow]}>
             <Ionicons

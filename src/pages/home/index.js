@@ -157,60 +157,55 @@ export default function Home({ navigation }) {
 
   const handleSyncFromServer = async () => {
     const isConnected = await isConnectedNetwork();
+
     if (!isConnected) {
       Alert.alert('Sem conexão', 'Conecte-se à internet para sincronizar.');
+
       return;
     }
 
+    syncSheetRef.current?.expand();
+
+    setSyncStatus('loading');
+
     try {
-      setSyncStatus('loading');
-      setSyncText('Buscando IDs de relatórios...');
-      syncSheetRef.current?.expand();
+      setSyncText(`Sincronizando relatórios...`);
 
-      const idsResp = await reportsService.getReportIds();
-      if (!idsResp.success) {
-        throw new Error(idsResp.message || 'Falha ao buscar IDs');
+      const allReports = [];
+      let page = 1;
+      let limit = 40;
+
+      while (true) {
+        const refsResp = await reportsService.getSyncReports({ page, limit });
+        
+        if (!refsResp.success) {
+          throw new Error(refsResp.message || 'Falha ao buscar relatórios sincronizados.');
+        }
+
+        if (refsResp.data.length === 0) {
+          break;
+        }
+
+        allReports.push(...refsResp.data);
+
+        page++;        
       }
 
-      const serverIds = Array.isArray(idsResp.data) ? idsResp.data : [];
-      const local = await getReport();
-      const localSyncedIds = new Set(
-        (local || [])
-          .filter(r => r?.sync && r?.remote_id)
-          .map(r => r.remote_id)
-      );
+      const existingReports = await getReport();
 
-      const idsToFetch = serverIds.filter(id => !localSyncedIds.has(id));
-
-      if (!idsToFetch.length) {
-        setSyncText('Nenhum novo relatório para importar.');
-        setSyncStatus('success');
-        await loadCounts();
-        setTimeout(() => {
-          syncSheetRef.current?.close();
-        }, 1200);
-        return;
+      for (const report of allReports) {
+        await addReportFromServer(report, existingReports);
       }
 
-      setSyncText(`Baixando ${idsToFetch.length} relatório(s)...`);
-      const refsResp = await reportsService.getReportsByIds(idsToFetch);
-      if (!refsResp.success) {
-        throw new Error(refsResp.message || 'Falha ao buscar relatórios por IDs');
-      }
-
-      const items = Array.isArray(refsResp.data) ? refsResp.data : [];
-      let imported = 0;
-      for (const item of items) {
-        await addReportFromServer(item);
-        imported += 1;
-      }
-
-      setSyncText(`Importados ${imported} relatório(s) com sucesso.`);
+      setSyncText(`Relatórios sincronizados com sucesso.`);
       setSyncStatus('success');
+
       await loadCounts();
+    
       setTimeout(() => {
         syncSheetRef.current?.close();
-      }, 1200);
+      }, 800);
+
     } catch (e) {
       setSyncText(e?.message || 'Erro durante a sincronização.');
       setSyncStatus('error');

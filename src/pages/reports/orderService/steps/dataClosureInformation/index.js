@@ -7,6 +7,7 @@ import Button from "../../../../../components/Button";
 import { useEffect, useState } from "react";
 import { updateReport } from "../../../../../storage/report";
 import { Ionicons } from "@expo/vector-icons";
+import MaskedInput from "../../../../../components/MaskedInput";
 
 export default function DataClosureInformation({ route, navigation }) {
     const id = route?.params?.id || null;
@@ -23,7 +24,6 @@ export default function DataClosureInformation({ route, navigation }) {
 
     useEffect(() => {
         if (orderService) {
-            console.log('[x] - orderService', JSON.stringify(orderService, null, 2));
             setOS_number(orderService.OS_number);
             setClosingStartTime(orderService.closing_start_time ? new Date(orderService.closing_start_time) : null);
             setClosingEndTime(orderService.closing_end_time ? new Date(orderService.closing_end_time) : null);
@@ -116,11 +116,13 @@ export default function DataClosureInformation({ route, navigation }) {
                 keyboardShouldPersistTaps="handled"
             >
 
-                <TextInput
+                <MaskedInput
                     label="Número da OS"
                     placeholder="Digite o número da OS"
                     value={OS_number}
                     onChangeText={setOS_number}
+                    pattern={"########-##"}
+                    keyboardType="number-pad"
                 />
 
                 <View style={{ height: 16 }} />

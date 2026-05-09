@@ -133,6 +133,15 @@ export default function AddEquipament({ route, navigation }) {
 
         <View style={{ height: 32 }} />
 
+        <TextInput
+          label="Número de série"
+          placeholder="Digite o número de série"
+          value={eqSerialNumber}
+          onChangeText={setEqSerialNumber}
+        />
+
+        <View style={{ height: 32 }} />
+
         <MaskedInput
           label="Data de fabricação"
           placeholder="Digite a data de fabricação"
@@ -146,8 +155,8 @@ export default function AddEquipament({ route, navigation }) {
         <View style={{ height: 32 }} />
 
         <TextInput
-          label="Modelo do compressor"
-          placeholder="Digite o modelo do compressor"
+          label="Unidade compressora"
+          placeholder="Digite a unidade compressora"
           value={eqCompressorUnitModel}
           onChangeText={setEqCompressorUnitModel}
         />
@@ -159,42 +168,6 @@ export default function AddEquipament({ route, navigation }) {
           placeholder="Digite o modelo do IHM"
           value={eqIhmModel}
           onChangeText={setEqIhmModel}
-        />
-
-        <View style={{ height: 32 }} />
-
-        <SegmentedRadio
-          label="Tensão de alimentação"
-          options={[
-            { label: '220V', value: '220V' },
-            { label: '380V', value: '380V' },
-            { label: '440V', value: '440V' },
-          ]}
-          value={eqSupplyVoltage}
-          onChange={setEqSupplyVoltage}
-        />
-
-        <View style={{ height: 32 }} />
-
-        <SegmentedRadio
-          label="Tensão de entrada do solenóide"
-          options={[
-            { label: '24V', value: '24V' },
-            { label: '110V', value: '110V' },
-            { label: '127V', value: '127V' },
-            { label: '220V', value: '220V' },
-          ]}
-          value={eqIntakeSolenoidVoltage}
-          onChange={setEqIntakeSolenoidVoltage}
-        />
-
-        <View style={{ height: 32 }} />
-
-        <TextInput
-          label="Número de série"
-          placeholder="Digite o número de série"
-          value={eqSerialNumber}
-          onChangeText={setEqSerialNumber}
         />
 
         <View style={{ height: 32 }} />
@@ -233,6 +206,33 @@ export default function AddEquipament({ route, navigation }) {
           placeholder="Digite o modelo do filtro coalescente"
           value={eqCoalescingFilterModel}
           onChangeText={setEqCoalescingFilterModel}
+        />
+
+        <View style={{ height: 32 }} />
+
+        <SegmentedRadio
+          label="Tensão de alimentação"
+          options={[
+            { label: '220V', value: '220V' },
+            { label: '380V', value: '380V' },
+            { label: '440V', value: '440V' },
+          ]}
+          value={eqSupplyVoltage}
+          onChange={setEqSupplyVoltage}
+        />
+
+        <View style={{ height: 32 }} />
+
+        <SegmentedRadio
+          label="Tensão de entrada do solenóide"
+          options={[
+            { label: '24V', value: '24V' },
+            { label: '110V', value: '110V' },
+            { label: '127V', value: '127V' },
+            { label: '220V', value: '220V' },
+          ]}
+          value={eqIntakeSolenoidVoltage}
+          onChange={setEqIntakeSolenoidVoltage}
         />
 
         <View style={{ height: 32 }} />

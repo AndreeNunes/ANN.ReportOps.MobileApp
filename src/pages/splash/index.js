@@ -5,6 +5,7 @@ import { useFonts } from "expo-font";
 import { authStorage } from "../../storage/auth";
 import LottieViewComponent from "../../components/LottieViewComponent";
 import { getAllCompanies } from "../../service/company";
+import { CommonActions } from "@react-navigation/native";
 
 export default function Splash({ navigation }) {
   const [fontLoaded] = useFonts({
@@ -26,9 +27,19 @@ export default function Splash({ navigation }) {
     if (token) {
       await getAllCompanies();
       
-      navigation.navigate('Main');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        })
+      );
     } else {
-      navigation.navigate('Auth');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Auth' }],
+        })
+      );
     }
   }
 

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCurrentDate } from "../util/date";
-import { addOrderService, getOrderServiceById, removeOrderService } from "./order_service";
+import { addOrderService, addOrderServiceFromServer, getOrderServiceById, removeOrderService } from "./order_service";
 import { ORDEM_SERVICE } from "./types/ordem_service";
 import { REPORT } from "./types/report";
 import uuid from 'react-native-uuid';
@@ -53,65 +53,58 @@ function mapRemoteToOrderService(remote) {
     if (!remote || typeof remote !== 'object') {
         return { ...ORDEM_SERVICE };
     }
-    const {
-        id,
-        created_at,
-        updated_at,
-        id_company,
-        id_equipament,
-        ...rest
-    } = remote || {};
-    
-    // Garante os campos esperados e zera anexos/assinatura locais
+
     return {
         ...ORDEM_SERVICE,
-        ...rest,
+        ...remote,
         company: remote?.company ?? null,
         equipament: remote?.equipament ?? null,
         attachments: [],
         signature: null,
+        cr_hot_air_duct_ok: remote?.cr_hot_air_duct_ok == null ? null : remote?.cr_hot_air_duct_ok == 1 ? true : false,
+        cr_hot_air_duct_regularized: remote?.cr_hot_air_duct_regularized == null ? null : remote?.cr_hot_air_duct_regularized == 1 ? true : false,
+        cr_room_temp_vent_ok: remote?.cr_room_temp_vent_ok == null ? null : remote?.cr_room_temp_vent_ok == 1 ? true : false,
+        cr_room_notes: remote?.cr_room_notes ?? null,
+        cr_accident_risk: remote?.cr_accident_risk == null ? null : remote?.cr_accident_risk == 1 ? true : false,
+        cr_electrical_install_ok: remote?.cr_electrical_install_ok == null ? null : remote?.cr_electrical_install_ok == 1 ? true : false,
+        cr_grounding_ok: remote?.cr_grounding_ok == null ? null : remote?.cr_grounding_ok == 1 ? true : false,
+        cr_room_lighting_ok: remote?.cr_room_lighting_ok == null ? null : remote?.cr_room_lighting_ok == 1 ? true : false,
+        cr_service_outlet_220v: remote?.cr_service_outlet_220v == null ? null : remote?.cr_service_outlet_220v == 1 ? true : false,
+        cr_air_point_for_cleaning: remote?.cr_air_point_for_cleaning == null ? null : remote?.cr_air_point_for_cleaning == 1 ? true : false,
+        cr_water_point_available: remote?.cr_water_point_available == null ? null : remote?.cr_water_point_available == 1 ? true : false,
+        cr_distancing_ok: remote?.cr_distancing_ok == null ? null : remote?.cr_distancing_ok == 1 ? true : false,
+        cr_compressor_ok: remote?.cr_compressor_ok == null ? null : remote?.cr_compressor_ok == 1 ? true : false,
     };
 }
 
-export async function addReportFromServer(remoteReport) {
-    const reports = await getReport();
-    const ordemService = remoteReport?.ordem_service || remoteReport;
-    const serverReport = remoteReport?.report;
+export async function addReportFromServer(report, existingReports) {
+    const existingReport = existingReports.find(r => r.id === report.report?.id);
 
-    const serverReportId = serverReport?.id || null;
-    const serverOrderServiceId = ordemService?.id || null;
-
-    const existsById = serverReportId ? reports.find(r => r.id === serverReportId) : null;
-    if (existsById) return existsById;
-
-    const existsByRemote = reports.find(r => r.remote_id && (r.remote_id === (serverReportId || serverOrderServiceId)));
+    if (existingReport) {
+        existingReports.splice(existingReports.indexOf(existingReport), 1);
+        await removeOrderService(existingReport.id_report);
+    }
     
-    if (existsByRemote) return existsByRemote;
-
-    const orderServiceDto = mapRemoteToOrderService(ordemService);
-    const idOrderService = await addOrderService(orderServiceDto);
-
-    const date = serverReport?.created_at || ordemService?.created_at || getCurrentDate();
-
-    const localId = serverReportId || uuid.v4();
-
-    const report = {
+    const newReport = {
         ...REPORT,
-        id: localId,
-        id_report: idOrderService,
-        created_at: date,
-        OS_number: ordemService?.OS_number ?? '',
-        company_name: ordemService?.company?.name ?? '',
-        equipament_name: ordemService?.equipament?.name ?? '',
+        id: report.report?.id,
+        created_at: report.report?.created_at,
+        id_report: report.ordem_service?.id,
+        OS_number: report.ordem_service?.OS_number,
+        company_name: report.ordem_service?.company?.name,
+        equipament_name: report.ordem_service?.equipament?.name,
         sync: true,
-        // remote_id deve bater com os IDs retornados por /v1/report/ids (id do REPORT do servidor)
-        remote_id: serverReportId || serverOrderServiceId || null,
     };
 
-    reports.push(report);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+    existingReports.push(newReport);
 
-    return report;
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(existingReports));
+
+    const orderServiceDto = mapRemoteToOrderService(report?.ordem_service);
+
+    await addOrderServiceFromServer(orderServiceDto);
+
+    return newReport;
 }
 
 export async function updateReport(id, partialDto) {
