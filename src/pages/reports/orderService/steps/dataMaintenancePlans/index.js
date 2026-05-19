@@ -11,6 +11,7 @@ export default function DataMaintenancePlans({ route, navigation }) {
   const id = route?.params?.id || null;
   const orderService = route?.params?.orderService || null;
 
+  const [currentHourMeter, setCurrentHourMeter] = useState(null);
   const [mpOil, setMpOil] = useState(null);
   const [mpAirOilSeparatorElement, setMpAirOilSeparatorElement] = useState(null);
   const [mpPrimaryAirFilter, setMpPrimaryAirFilter] = useState(null);
@@ -24,6 +25,7 @@ export default function DataMaintenancePlans({ route, navigation }) {
 
   useEffect(() => {
     if (orderService) {
+      setCurrentHourMeter(orderService.current_hour_meter ?? null);
       setMpOil(orderService.mp_oil);
       setMpAirOilSeparatorElement(orderService.mp_air_oil_separator_element);
       setMpPrimaryAirFilter(orderService.mp_primary_air_filter);
@@ -42,6 +44,7 @@ export default function DataMaintenancePlans({ route, navigation }) {
     }
 
     await updateOrderService(id, {
+      current_hour_meter: currentHourMeter,
       mp_oil: mpOil,
       mp_air_oil_separator_element: mpAirOilSeparatorElement,
       mp_primary_air_filter: mpPrimaryAirFilter,
@@ -99,6 +102,22 @@ export default function DataMaintenancePlans({ route, navigation }) {
         contentContainerStyle={{ paddingBottom: 64 }}
         keyboardShouldPersistTaps="handled"
       >
+        <MaskedInput
+          label="Horímetro atual"
+          placeholder="Digite o horímetro atual"
+          useNumberMask={true}
+          numberOptions={{
+            prefix: [],
+            delimiter: '.',
+            separator: ',',
+            precision: 0,
+          }}
+          value={currentHourMeter}
+          onChangeText={setCurrentHourMeter}
+        />
+
+        <View style={{ height: 32 }} />
+
         <MaskedInput
           label="Óleo"
           placeholder="Digite a quilometragem"

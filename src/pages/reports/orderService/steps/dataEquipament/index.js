@@ -9,7 +9,6 @@ import styles from "./styles";
 import SearchWithAdd from "../../../../../components/SearchWithAdd";
 import { Ionicons } from "@expo/vector-icons";
 import { updateReport } from "../../../../../storage/report";
-import MaskedInput from "../../../../../components/MaskedInput";
 import InfoBanner from "../../../../../components/InfoBanner";
 import BottomSheetComponent from "../../../../../components/BottomSheet";
 
@@ -26,7 +25,6 @@ export default function DataEquipament({ route, navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [actionItem, setActionItem] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [currentHourMeter, setCurrentHourMeter] = useState(orderService?.current_hour_meter ?? null);
   const bottomSheetRef = useRef(null);
 
   useFocusEffect(
@@ -74,23 +72,6 @@ export default function DataEquipament({ route, navigation }) {
         <View style={{ height: 12 }} />
 
         <View style={{ paddingHorizontal: 16 }}>
-
-          <MaskedInput
-            label="Horímetro atual"
-            placeholder="Digite o horímetro atual"
-            useNumberMask={true}
-            numberOptions={{
-              prefix: [],
-              delimiter: '.',
-              separator: ',',
-              precision: 0,
-            }}
-            value={currentHourMeter}
-            onChangeText={setCurrentHourMeter}
-          />
-
-          <View style={{ height: 32 }} />
-
           <SearchWithAdd
             value={search}
             onChangeText={(text) => searchEquipaments(text)}
@@ -103,7 +84,7 @@ export default function DataEquipament({ route, navigation }) {
         </View>
       </View>
     )
-  }, [search, equipamentsFiltered.length, currentHourMeter]);
+  }, [search, equipamentsFiltered.length]);
 
   const renderItem = ({ item }) => {
     return (
@@ -182,7 +163,6 @@ export default function DataEquipament({ route, navigation }) {
       }
 
       await updateOrderService(id, {
-        current_hour_meter: currentHourMeter,
         equipament: item,
       });
 
