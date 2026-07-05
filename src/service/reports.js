@@ -69,9 +69,11 @@ export const reportsService = {
             }
 
             const response = await api.post('/v1/report/get-sync', request);
+
+            console.log("status -> ", response.status)
             
             if (response.status !== 200) {
-                return {
+                return {    
                     success: false,
                     message: response.data?.message || 'Erro ao buscar relatórios por IDs',
                 };
@@ -91,6 +93,7 @@ export const reportsService = {
     addReport: async (report) => {
         const response = await api.post('/v1/report', report)
             .then(response => {
+                console.log('[x] - response', response.status, response.data);
                 if (response.status !== 200) {
                     return {
                         success: false,

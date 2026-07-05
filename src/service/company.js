@@ -59,20 +59,32 @@ export async function createCompany(payload) {
 }
 
 export async function updateCompany(payload) {
-    const response = await api.put(`/v1/company/${payload.id}`, payload);
+    try {
+        const response = await api.put(`/v1/company/${payload.id}`, payload);
 
-    if (response.status !== 200) {
+        if (response.status !== 200) {
+            return {
+                success: false,
+                message: response?.data?.message || 'Erro ao atualizar empresa',
+            };
+        }
+
+        return {
+            success: true,
+            message: response?.data?.message || 'Empresa atualizada com sucesso',
+            data: response?.data?.data,
+        };
+    } catch (error) {
+        console.error('[x] updateCompany error:', {
+            id: payload?.id,
+            status: error?.response?.status,
+            data: JSON.stringify(error?.response?.data, null, 2),
+        });
         return {
             success: false,
-            message: response?.data?.message || 'Erro ao atualizar empresa',
+            message: error?.response?.data?.message || 'Erro ao atualizar empresa',
         };
     }
-
-    return {
-        success: true,
-        message: response?.data?.message || 'Empresa atualizada com sucesso',
-        data: response?.data?.data,
-    };
 }
 
 export async function deleteCompany(companyId) {

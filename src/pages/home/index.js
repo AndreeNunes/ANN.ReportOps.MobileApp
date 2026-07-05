@@ -10,7 +10,7 @@ import BottomSheetComponent from '../../components/BottomSheet';
 import LottieView from 'lottie-react-native';
 import { isConnectedNetwork } from '../../util/network';
 import { reportsService } from '../../service/reports';
-import { addReportFromServer, getReport } from '../../storage/report';
+import { addReportsFromServer } from '../../storage/report';
 import { getFirstLoginSyncPrompted, setFirstLoginSyncPrompted } from '../../storage/sync_prefs';
 import { deleteCompany, getAllCompanies } from '../../service/company';
 
@@ -171,13 +171,18 @@ export default function Home({ navigation }) {
     try {
       setSyncText(`Sincronizando relatórios...`);
 
+      const tTotal = Date.now();
+
       const allReports = [];
       let page = 1;
-      let limit = 40;
+      let limit = 120;
 
+      const tFetch = Date.now();
       while (true) {
+        const tPage = Date.now();
         const refsResp = await reportsService.getSyncReports({ page, limit });
-        
+        console.log(`[sync] getSyncReports página ${page}: ${Date.now() - tPage}ms`);
+
         if (!refsResp.success) {
           throw new Error(refsResp.message || 'Falha ao buscar relatórios sincronizados.');
         }
@@ -188,20 +193,23 @@ export default function Home({ navigation }) {
 
         allReports.push(...refsResp.data);
 
-        page++;        
+        page++;
       }
+      console.log(`[sync] fetch total (${allReports.length} relatórios): ${Date.now() - tFetch}ms`);
 
-      const existingReports = await getReport();
-
-      for (const report of allReports) {
-        await addReportFromServer(report, existingReports);
-      }
+      const tAdd = Date.now();
+      await addReportsFromServer(allReports);
+      console.log(`[sync] addReportsFromServer (lote ${allReports.length}): ${Date.now() - tAdd}ms`);
 
       setSyncText(`Relatórios sincronizados com sucesso.`);
       setSyncStatus('success');
 
+      const tCounts = Date.now();
       await loadCounts();
-    
+      console.log(`[sync] loadCounts: ${Date.now() - tCounts}ms`);
+
+      console.log(`[sync] TOTAL: ${Date.now() - tTotal}ms`);
+
       setTimeout(() => {
         syncSheetRef.current?.close();
       }, 800);

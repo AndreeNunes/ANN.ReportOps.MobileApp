@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCurrentDate } from "../util/date";
-import { addOrderService, addOrderServiceFromServer, getOrderServiceById, removeOrderService } from "./order_service";
+import { addOrderService, addOrderServiceFromServer, getOrderService, getOrderServiceById, removeOrderService, replaceAllOrderServices } from "./order_service";
 import { ORDEM_SERVICE } from "./types/ordem_service";
 import { REPORT } from "./types/report";
 import uuid from 'react-native-uuid';
@@ -105,6 +105,60 @@ export async function addReportFromServer(report, existingReports) {
     await addOrderServiceFromServer(orderServiceDto);
 
     return newReport;
+}
+
+// Versão em lote do addReportFromServer: faz todo o processamento em memória
+// e grava no AsyncStorage apenas uma vez (relatórios e ordens de serviço),
+// evitando o custo O(n²) de ler/serializar/escrever as listas a cada item.
+export async function addReportsFromServer(serverReports) {
+    const existingReports = await getReport();
+    const orderServiceList = await getOrderService();
+
+    // Indexa por id para lookup/dedupe em O(1).
+    const reportMap = new Map();
+    for (const r of existingReports) {
+        if (r?.id != null) reportMap.set(r.id, r);
+    }
+
+    const osMap = new Map();
+    for (const os of orderServiceList) {
+        if (os?.id != null) osMap.set(os.id, os);
+    }
+
+    for (const report of serverReports) {
+        const reportId = report.report?.id;
+
+        // Se já existe localmente, remove o relatório antigo e a OS vinculada.
+        const existingReport = reportMap.get(reportId);
+        if (existingReport) {
+            reportMap.delete(reportId);
+            if (existingReport.id_report != null) {
+                osMap.delete(existingReport.id_report);
+            }
+        }
+
+        const newReport = {
+            ...REPORT,
+            id: reportId,
+            created_at: report.report?.created_at,
+            id_report: report.ordem_service?.id,
+            OS_number: report.ordem_service?.OS_number,
+            company_name: report.ordem_service?.company?.name,
+            equipament_name: report.ordem_service?.equipament?.name,
+            sync: true,
+        };
+
+        reportMap.set(reportId, newReport);
+
+        const orderServiceDto = mapRemoteToOrderService(report?.ordem_service);
+        if (orderServiceDto?.id != null) {
+            osMap.set(orderServiceDto.id, orderServiceDto);
+        }
+    }
+
+    // Grava cada lista uma única vez.
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(reportMap.values())));
+    await replaceAllOrderServices(Array.from(osMap.values()));
 }
 
 export async function updateReport(id, partialDto) {

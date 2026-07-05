@@ -251,7 +251,11 @@ export default function AddReportOrderService({ navigation, route }) {
       type: "ORDEM_SERVICE",
     }
 
+    console.log("requestReport -> ", requestReport)
+
     const response = await reportsService.addReport(requestReport);
+
+    console.log("response -> ", response.status, response.data)
 
     const finish = (status) => {
       const elapsed = Date.now() - startAt;
@@ -276,6 +280,10 @@ export default function AddReportOrderService({ navigation, route }) {
           id_equipament: orderService.current?.equipament?.id,
         }
       }
+
+      console.log("requestReference -> ", requestReference)
+
+      console.log("is_exists -> ", response.is_exists)
 
       if (response.is_exists) {
         if (orderService.current?.closing_start_time) {

@@ -64,6 +64,11 @@ export async function addOrderServiceFromServer(dto) {
   }
 }
 
+export async function replaceAllOrderServices(list) {
+  await saveOrderServiceList(list);
+  return list;
+}
+
 export async function updateOrderService(id, partialDto) {
   const orderService = await getOrderService();
 
